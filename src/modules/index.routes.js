@@ -1,4 +1,4 @@
-import userRouter from './Users/user.routes.js'
-import messageRouter from './Messages/message.routes.js'
-
-export { userRouter, messageRouter }
+import categoryRouter from './Categories/category.routes.js'
+import subcategorRouter from './subCategory/subCategory.routes.js'
+import brandRouter from './Brands/brand.routes.js'
+export { categoryRouter, subcategorRouter, brandRouter }
