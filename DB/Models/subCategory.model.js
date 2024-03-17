@@ -1,39 +1,38 @@
-
-
-import { Schema ,model } from 'mongoose';
-export const subCategorySchema = new Schema({
+import { Schema, model } from "mongoose";
+export const subCategorySchema = new Schema(
+  {
     name: {
-        type: String,
-        unique: true,
-        required: true,
-        lowercase: true
+      type: String,
+      unique: true,
+      required: true,
+      lowercase: true,
     },
     slug: {
-        type: string,
-        unique: true,
-        required: true,
-        lowercase: true
+      type: String,
+      unique: true,
+      required: true,
+      lowercase: true,
     },
     image: {
-        secure_url: {
-            type: String,
-            required: true
-        },
-        public_id: {
-            type: String,
-            required: true
-        }
+      secure_url: {
+        type: String,
+        required: true,
+      },
+      public_id: {
+        type: String,
+        required: true,
+      },
     },
     createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }
-    , 
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     categoryId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Category'
-    }
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+    },
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true });
-
-export const subCategoryModel = model('subCategory', subCategorySchema);
+export const subCategoryModel = model("subCategory", subCategorySchema);
