@@ -1,38 +1,42 @@
-
-import { Schema ,model } from 'mongoose';
-export const brandSchema = new Schema({
+import { Schema, model } from "mongoose";
+export const brandSchema = new Schema(
+  {
     name: {
-        type: String,
-        unique: true,
-        required: true,
-        lowercase: true
+      type: String,
+      required: true,
+      lowercase: true,
     },
     slug: {
-        type: string,
-        unique: true,
-        required: true,
-        lowercase: true
+      type: String,
+      required: true,
+      lowercase: true,
     },
     logo: {
-        secure_url: {
-            type: String,
-            required: true
-        },
-        public_id: {
-            type: String,
-            required: true
-        }
+      secure_url: {
+        type: String,
+        required: true,
+      },
+      public_id: {
+        type: String,
+        required: true,
+      },
     },
-    createdBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }
-    , 
     categoryId: {
-        type: Schema.Types.ObjectId,
-        ref: 'subCategory'
-    }
+      type: Schema.Types.ObjectId,
+      ref: "category",
+      required: true,
+    },
+    subCategoryId: {
+      type: Schema.Types.ObjectId,
+      ref: "subCategory",
+      required: true,
+    },
+    customId: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-}, { timestamps: true });
-
-export const brandModel = model('Brand', brandSchema);
+export const brandModel = model("Brand", brandSchema);

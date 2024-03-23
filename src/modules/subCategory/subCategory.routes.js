@@ -8,8 +8,8 @@ import * as validationSchema from "./subCategory.validationSchemas.js";
 const router = Router();
 router.post(
   "/:categoryId",
-  validationCoreFunction(validationSchema.createSubCategorySchema),
   multerCloudFunction(allowedExtensions.Image).single("image"),
+  validationCoreFunction(validationSchema.createSubCategorySchema),
   asyncHandler(sc.createSubCategory)
 );
 router.get("/", asyncHandler(sc.getAllSubCategories));

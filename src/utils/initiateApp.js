@@ -7,6 +7,7 @@ export const initiateApp = (app, express) => {
   app.use("/category", allRouter.categoryRouter);
   app.use("/subCategory", allRouter.subcategorRouter);
   app.use("/brand", allRouter.brandRouter);
+  app.use("/product", allRouter.productRouter);
   const port = process.env.PORT;
 
   app.all("*", (req, res, next) =>

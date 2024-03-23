@@ -27,12 +27,20 @@ export const subCategorySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    customId: {
+      type: String,
+      required: true,
+    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-
+subCategorySchema.virtual("brands", {
+  ref: "Brand",
+  localField: "_id",
+  foreignField: "subCategoryId",
+});
 export const subCategoryModel = model("subCategory", subCategorySchema);

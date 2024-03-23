@@ -19,6 +19,6 @@ router.post(
   validationCoreFunction(validationSchema.createCategorySchema),
   asyncHandler(cc.updateCategory)
 );
-router.delete("/:categoryId", asyncHandler(cc.deleteCategory));
+router.delete("/deleteCategory", asyncHandler(cc.deleteCategory));
 router.get("/", asyncHandler(cc.getAllCategories));
 export default router;

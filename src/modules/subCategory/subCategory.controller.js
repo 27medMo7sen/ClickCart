@@ -1,23 +1,27 @@
 import { categoryModel } from "../../../DB/Models/category.model.js";
 import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
-import { customAlphabet } from "nanoid";
 import slugify from "slugify";
+import { customAlphabet } from "nanoid";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 export const createSubCategory = async (req, res, next) => {
+  console.log(req.body);
   const { categoryId } = req.params;
   const { name } = req.body;
-  if (!(await categoryModel.findById(categoryId)))
-    return next(new Error("Category not found", { cause: 404 }));
+  const category = await categoryModel.findById(categoryId);
+  if (!category) return next(new Error("Category not found", { cause: 404 }));
   if (await subCategoryModel.findOne({ name }))
     return next(new Error("SubCategory already exists", { cause: 400 }));
-  const slug = slugify(name, "_");
-  const subCategoryId = nanoid();
+  const slug = slugify(name, {
+    replacement: "_",
+    lower: true,
+  });
+  const customId = nanoid();
   if (!req.file) return next(new Error("Image is required", { cause: 400 }));
   const { secure_url, public_id } = await cloudinary.uploader.upload(
     req.file.path,
     {
-      folder: `${process.env.PROJECT_FOLDER}/category/${subCategoryId}`,
+      folder: `${process.env.PROJECT_FOLDER}/category/${category.customId}/subCategory/${customId}`,
     }
   );
   const subCategory = await subCategoryModel.create({
@@ -25,6 +29,7 @@ export const createSubCategory = async (req, res, next) => {
     slug,
     image: { secure_url, public_id },
     categoryId,
+    customId,
   });
   if (!subCategory) {
     await cloudinary.uploader.destroy(public_id);
