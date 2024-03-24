@@ -22,24 +22,27 @@ export const validationCoreFunction = (schema) => {
   return (req, res, next) => {
     // req
     console.log(req.body);
-    console.log(req.file);
     const validationErrorArr = [];
     for (const key of reqMethods) {
       if (schema[key]) {
+        console.log("hello");
         const validationResult = schema[key].validate(req[key], {
           abortEarly: false,
         }); // error
+
         if (validationResult.error) {
           validationErrorArr.push(validationResult.error.details);
         }
       }
     }
+    console.log("hello");
 
     if (validationErrorArr.length) {
       return res
         .status(400)
         .json({ message: "Validation Error", Errors: validationErrorArr });
     }
+    console.log("hello");
     next();
   };
 };

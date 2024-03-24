@@ -74,6 +74,7 @@ const productSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
 export const productModel = model("Product", productSchema);

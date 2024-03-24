@@ -13,4 +13,11 @@ router.post(
   asyncHandler(sc.createSubCategory)
 );
 router.get("/", asyncHandler(sc.getAllSubCategories));
+router.put(
+  "/",
+  multerCloudFunction(allowedExtensions.Image).single("image"),
+  validationCoreFunction(validationSchema.updateSubCategorySchema),
+  asyncHandler(sc.updateSubCategory)
+);
+router.delete("/deleteSubCategory", asyncHandler(sc.deleteSubCategory));
 export default router;

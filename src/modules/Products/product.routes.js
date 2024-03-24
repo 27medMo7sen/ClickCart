@@ -9,6 +9,13 @@ const router = Router();
 router.post(
   "/",
   multerCloudFunction(allowedExtensions.Image).array("images", 3),
+  validationCoreFunction(validationSchema.createProductSchema),
   asyncHandler(pc.createProduct)
+);
+router.put(
+  "/",
+  multerCloudFunction(allowedExtensions.Image).array("images", 3),
+  validationCoreFunction(validationSchema.updateProductSchema),
+  asyncHandler(pc.updateProduct)
 );
 export default router;

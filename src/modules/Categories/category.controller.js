@@ -4,6 +4,7 @@ import cloudinary from "../../utils/coludinaryConfigrations.js";
 import { customAlphabet } from "nanoid";
 import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
+import { productModel } from "../../../DB/Models/product.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
 export const createCategory = async (req, res, next) => {
@@ -65,6 +66,9 @@ export const getAllCategories = async (req, res, next) => {
     path: "subCategories",
     populate: {
       path: "brands",
+      populate: {
+        path: "products",
+      },
     },
   });
   if (!categories)
@@ -86,8 +90,14 @@ export const deleteCategory = async (req, res, next) => {
   });
   const deletedBrands = await brandModel.deleteMany({ categoryId });
   console.log(deletedSubCategories, deletedBrands);
+  const deletedProducts = await productModel.deleteMany({ categoryId });
   await categoryModel.findByIdAndDelete(categoryId);
-  if (!deletedSubCategories.deletedCount || !deletedBrands.deletedCount)
-    return next(new Error("deletion failed", { cause: 500 }));
+  if (!deletedProducts)
+    return next(new Error("Category not deleted", { cause: 500 }));
+  if (!deletedSubCategories)
+    return next(new Error("Category not deleted", { cause: 500 }));
+  if (!deletedBrands)
+    return next(new Error("Category not deleted", { cause: 500 }));
+
   res.status(200).json({ message: "Category deleted succesfully" });
 };

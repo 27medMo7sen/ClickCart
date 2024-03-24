@@ -56,3 +56,53 @@ export const createProduct = async (req, res) => {
   }
   res.status(201).json(newProduct);
 };
+export const updateProduct = async (req, res, next) => {
+  const { productId } = req.query;
+  const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
+  const product = await productModel.findById(productId);
+  if (!product) return next(new Error("Product not found", { cause: 404 }));
+  const { categoryId, subCategoryId, brandId } = product;
+  const category = await categoryModel.findById(categoryId);
+  const subCategory = await subCategoryModel.findById(subCategoryId);
+  const brand = await brandModel.findById(brandId);
+  if (price && appliedDiscount)
+    (product.priceAfterDiscount =
+      price - (price * (appliedDiscount || 0)) / 100),
+      (product.price = price);
+  else if (price)
+    (product.priceAfterDiscount =
+      price - (price * (product.appliedDiscount || 0)) / 100),
+      (product.price = price);
+  else if (appliedDiscount)
+    product.priceAfterDiscount =
+      product.price - (product.price * (appliedDiscount || 0)) / 100;
+  if (name) {
+    const slug = slugify(name, "_");
+    product.name = name;
+    product.slug = slug;
+  }
+  if (desc) product.desc = desc;
+  if (stock) product.stock = stock;
+  if (colors) product.colors = colors;
+  if (sizes) product.sizes = sizes;
+  const images = [];
+  if (req.files && req.files.length > 0) {
+    for (const file of req.files) {
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        file.path,
+        {
+          folder: `${process.env.PROJECT_FOLDER}/category/${category.customId}/subCategory/${subCategory.customId}/brand/${brand.customId}/product/${product.customId}`,
+        }
+      );
+      images.push({ secure_url, public_id });
+    }
+    for (const image of product.images) {
+      await cloudinary.uploader.destroy(image.public_id);
+    }
+  }
+  product.images = images;
+  const updatedProduct = await product.save();
+  if (!updatedProduct)
+    return next(new Error("Product not updated", { cause: 500 }));
+  res.status(200).json(updatedProduct);
+};
