@@ -118,7 +118,12 @@ export const getProductsByName = async (req, res, next) => {
   const { name, page, size } = req.query;
   const { limit, skip } = pagination(page, size);
   const products = await productModel
-    .find({ name: { $regex: name } })
+    .find({
+      $or: [
+        { name: { $regex: name, $options: "i" } },
+        { desc: { $regex: name, $options: "i" } },
+      ],
+    })
     .limit(limit)
     .skip(skip);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
