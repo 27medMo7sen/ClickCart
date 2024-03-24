@@ -4,6 +4,7 @@ import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 import slugify from "slugify";
 import { customAlphabet } from "nanoid";
+import { pagination } from "../../utils/pagination.js";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
@@ -105,4 +106,21 @@ export const updateProduct = async (req, res, next) => {
   if (!updatedProduct)
     return next(new Error("Product not updated", { cause: 500 }));
   res.status(200).json(updatedProduct);
+};
+export const getAllProducts = async (req, res, next) => {
+  const { page, size } = req.query;
+  const { limit, skip } = pagination(page, size);
+  const products = await productModel.find().limit(limit).skip(skip);
+  if (!products) return next(new Error("Products not found", { cause: 404 }));
+  res.status(200).json(products);
+};
+export const getProductsByName = async (req, res, next) => {
+  const { name, page, size } = req.query;
+  const { limit, skip } = pagination(page, size);
+  const products = await productModel
+    .find({ name: { $regex: name } })
+    .limit(limit)
+    .skip(skip);
+  if (!products) return next(new Error("Products not found", { cause: 404 }));
+  res.status(200).json(products);
 };

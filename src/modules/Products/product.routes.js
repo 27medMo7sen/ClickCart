@@ -18,4 +18,6 @@ router.put(
   validationCoreFunction(validationSchema.updateProductSchema),
   asyncHandler(pc.updateProduct)
 );
+router.get("/", asyncHandler(pc.getAllProducts));
+router.get("/getProductsByName", asyncHandler(pc.getProductsByName));
 export default router;
