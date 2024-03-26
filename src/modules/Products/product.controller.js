@@ -129,3 +129,23 @@ export const getProductsByName = async (req, res, next) => {
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
+export const deleteProduct = async (req, res, next) => {
+  const { productId } = req.query;
+  const product = await productModel.findById(productId);
+  if (!product) return next(new Error("Product not found", { cause: 404 }));
+  const customId = product.customId;
+  const { categoryId, subCategoryId, brandId } = product;
+  const category = await categoryModel.findById(categoryId);
+  const subCategory = await subCategoryModel.findById(subCategoryId);
+  const brand = await brandModel.findById(brandId);
+  const deletedProduct = await productModel.findByIdAndDelete(productId);
+  if (!deletedProduct)
+    return next(new Error("Product not deleted", { cause: 500 }));
+  await cloudinary.api.delete_resources_by_prefix(
+    `${process.env.PROJECT_FOLDER}/category/${category.customId}/subCategory/${subCategory.customId}/brand/${brand.customId}/product/${customId}`
+  );
+  await cloudinary.api.delete_folder(
+    `${process.env.PROJECT_FOLDER}/category/${category.customId}/subCategory/${subCategory.customId}/brand/${brand.customId}/product/${customId}`
+  );
+  res.status(200).json(deletedProduct);
+};

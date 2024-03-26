@@ -20,4 +20,5 @@ router.put(
 );
 router.get("/", asyncHandler(pc.getAllProducts));
 router.get("/getProductsByName", asyncHandler(pc.getProductsByName));
+router.delete("/", asyncHandler(pc.deleteProduct));
 export default router;
