@@ -95,9 +95,9 @@ export const deleteCategory = async (req, res, next) => {
   if (!deletedProducts)
     return next(new Error("Category not deleted", { cause: 500 }));
   if (!deletedSubCategories)
-    return next(new Error("Category not deleted", { cause: 500 }));
+    return next(new Error("SubCategories not deleted", { cause: 500 }));
   if (!deletedBrands)
-    return next(new Error("Category not deleted", { cause: 500 }));
+    return next(new Error("Brands not deleted", { cause: 500 }));
 
   res.status(200).json({ message: "Category deleted succesfully" });
 };
