@@ -65,7 +65,7 @@ export const updateCoupon = async (req, res, next) => {
     found.createdAt = createdAtMoment;
     found.expireAt = expireAtMoment;
   }
-  if (createdAtMoment) {
+  if (createdAt) {
     const createdAtMoment = moment(new Date(createdAt)).format(
       "YYYY-MM-DD HH:mm:ss"
     );
