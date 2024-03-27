@@ -1,11 +1,52 @@
 import { couponModel } from "../../../DB/Models/coupon.model.js";
-import { productModel } from "../../../DB/Models/product.model.js";
-import { categoryModel } from "../../../DB/Models/category.model.js";
-import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
-import { brandModel } from "../../../DB/Models/brand.model.js";
-import slugify from "slugify";
-import { customAlphabet } from "nanoid";
-import { pagination } from "../../utils/pagination.js";
-import cloudinary from "../../utils/coludinaryConfigrations.js";
-const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
+import moment from "moment";
 //============================================== createCoupon ==============================================
+export const createCoupon = async (req, res, next) => {
+  const { code, createdAt, expireAt, discount } = req.body;
+  const found = await couponModel.findOne({ code: code.toLowerCase() });
+
+  if (found)
+    return res.status(400).json({ message: "Coupon Code Already Exists" });
+  const createdAtMoment = moment(new Date(createdAt)).format(
+    "YYYY-MM-DD HH:mm:ss"
+  );
+  const expireAtMoment = moment(new Date(expireAt)).format(
+    "YYYY-MM-DD HH:mm:ss"
+  );
+  const now = moment().format("YYYY-MM-DD HH:mm:ss");
+  if (
+    moment(createdAtMoment).isSameOrAfter(moment(expireAtMoment)) ||
+    moment(now).isSameOrAfter(moment(expireAtMoment)) ||
+    moment(now).isAfter(moment(createdAtMoment))
+  )
+    return next(new Error("Invalid Dates", { cause: 400 }));
+  if (discount < 0 || discount > 100)
+    return next(new Error("Invalid Discount", { cause: 400 }));
+  const coupon = await couponModel.create({
+    code,
+    createdAt: createdAtMoment,
+    expireAt: expireAtMoment,
+    discount,
+  });
+  if (!coupon) return next(new Error("Coupon not created", { cause: 500 }));
+  res.status(201).json({ message: "Coupon created succesfully", coupon });
+};
+//============================================== updateCoupon ==============================================
+export const updateCoupon = async (req, res, next) => {
+  const { couponId } = req.params;
+  const { code, discount } = req.body;
+  const found = await couponModel.findById({ _id: couponId });
+  if (!found) return next(new Error("Coupon not found", { cause: 404 }));
+  if (discount < 0 || discount > 100)
+    return next(new Error("Invalid Discount", { cause: 400 }));
+  const updated = await couponModel.findByIdAndUpdate(
+    { _id: couponId },
+    {
+      code,
+      discount,
+    },
+    { new: true }
+  );
+  if (!updated) return next(new Error("Coupon not updated", { cause: 500 }));
+  res.status(200).json({ message: "Coupon updated succesfully", updated });
+};
