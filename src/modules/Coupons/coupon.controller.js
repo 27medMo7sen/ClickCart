@@ -37,16 +37,19 @@ export const updateCoupon = async (req, res, next) => {
   const { code, discount } = req.body;
   const found = await couponModel.findById({ _id: couponId });
   if (!found) return next(new Error("Coupon not found", { cause: 404 }));
+  if (code) {
+    if (code == found.code)
+      return next(new Error("Coupon Code Already Exists", { cause: 400 }));
+    const foundCode = await couponModel.findOne({ code: code.toLowerCase() });
+    if (foundCode)
+      return next(new Error("Coupon Code Already Exists", { cause: 400 }));
+    found.code = code;
+  }
+
   if (discount < 0 || discount > 100)
     return next(new Error("Invalid Discount", { cause: 400 }));
-  const updated = await couponModel.findByIdAndUpdate(
-    { _id: couponId },
-    {
-      code,
-      discount,
-    },
-    { new: true }
-  );
+  found.discount = discount;
+  const updated = await found.save();
   if (!updated) return next(new Error("Coupon not updated", { cause: 500 }));
   res.status(200).json({ message: "Coupon updated succesfully", updated });
 };
