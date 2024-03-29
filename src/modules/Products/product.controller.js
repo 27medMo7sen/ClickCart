@@ -4,9 +4,9 @@ import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 import slugify from "slugify";
 import { customAlphabet } from "nanoid";
-import { pagination } from "../../utils/pagination.js";
+import { paginationFunciton } from "../../utils/pagination.js";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
-import match from "nodemon/lib/monitor/match.js";
+import { apiFeatures } from "../../utils/apiFeatures.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
 export const createProduct = async (req, res) => {
@@ -154,8 +154,8 @@ export const deleteProduct = async (req, res, next) => {
 };
 export const listProducts = async (req, res, next) => {
   //================= sort ===============
-  // const {sort}=req.query;
-  // const products = await productModel.find().sort(sort.replaceAll(","," "));
+  // const { sort } = req.query;
+  // const products = await productModel.find().sort(sort.replaceAll(",", " "));
   // if (!products) return next(new Error("Products not found", { cause: 404 }));
   // res.status(200).json(products);
   //================= select ===============
@@ -167,26 +167,36 @@ export const listProducts = async (req, res, next) => {
   // res.status(200).json(products);
   //================= search ==============
   // const { search } = req.query;
-  // const products = await productModel
-  //   .find({
-  //     $or: [
-  //       { name: { $regex: search, $options: "i" } },
-  //       { desc: { $regex: search, $options: "i" } },
-  //     ],
-  //   })
+  // const products = await productModel.find({
+  //   $or: [
+  //     { name: { $regex: search, $options: "i" } },
+  //     { desc: { $regex: search, $options: "i" } },
+  //   ],
+  // });
+  // if (!products) return next(new Error("Products not found", { cause: 404 }));
+  // res.status(200).json(products);
   //======================= filter ========================
-  const excludeFields = ["page", "sort", "limit", "select", "search"];
-  excludeFields.forEach((key) => delete queryInstance[key]);
-  const queryInstance = { ...req.query };
-  console.log(queryInstance);
-  const queryString = JSON.parse(
-    JSON.stringify(queryInstance).replace(
-      /lte|gte|gt|lt|regex|in|nin|eq|neq/g,
-      (match) => `$${match}`
-    )
-  );
-  console.log(queryString);
-  const products = await productModel.find(queryString);
+  // const excludeFields = ["page", "sort", "limit", "select", "search"];
+  // const queryInstance = { ...req.query };
+  // excludeFields.forEach((key) => delete queryInstance[key]);
+  // console.log(queryInstance);
+  // const queryString = JSON.parse(
+  //   JSON.stringify(queryInstance).replace(
+  //     /lte|gte|gt|lt|regex|in|nin|eq|neq/g,
+  //     (match) => `$${match}`
+  //   )
+  // );
+  // console.log(queryString);
+  // const products = await productModel.find(queryString);
+  // if (!products) return next(new Error("Products not found", { cause: 404 }));
+  // res.status(200).json(products);
+  const apiFeaturesInstance = new apiFeatures(productModel.find(), req.query)
+    .pagination()
+    .sort()
+    .select()
+    .search()
+    .filter();
+  const products = await apiFeaturesInstance.mongooseQuery;
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
