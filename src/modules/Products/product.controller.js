@@ -9,7 +9,7 @@ import cloudinary from "../../utils/coludinaryConfigrations.js";
 import { apiFeatures } from "../../utils/apiFeatures.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
-export const createProduct = async (req, res) => {
+export const addProduct = async (req, res) => {
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const { categoryId, subCategoryId, brandId } = req.query;
   const category = await categoryModel.findById(categoryId);

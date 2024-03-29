@@ -10,7 +10,7 @@ router.post(
   "/",
   multerCloudFunction(allowedExtensions.Image).array("images", 3),
   validationCoreFunction(validationSchema.createProductSchema),
-  asyncHandler(pc.createProduct)
+  asyncHandler(pc.addProduct)
 );
 router.put(
   "/",

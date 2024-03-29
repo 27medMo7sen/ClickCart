@@ -7,7 +7,7 @@ import { brandModel } from "../../../DB/Models/brand.model.js";
 import { productModel } from "../../../DB/Models/product.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
-export const createCategory = async (req, res, next) => {
+export const addCategory = async (req, res, next) => {
   const { name, _id } = req.body;
   const found = await categoryModel.findOne({ name });
   if (found) return next(new Error("Category already exists", { cause: 400 }));

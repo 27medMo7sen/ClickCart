@@ -10,7 +10,7 @@ router.post(
   "/:categoryId",
   multerCloudFunction(allowedExtensions.Image).single("image"),
   validationCoreFunction(validationSchema.createSubCategorySchema),
-  asyncHandler(sc.createSubCategory)
+  asyncHandler(sc.addSubcategory)
 );
 router.get("/", asyncHandler(sc.getAllSubCategories));
 router.put(

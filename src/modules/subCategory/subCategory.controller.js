@@ -7,7 +7,7 @@ import { populate } from "dotenv";
 import { productModel } from "../../../DB/Models/product.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
-export const createSubCategory = async (req, res, next) => {
+export const addSubcategory = async (req, res, next) => {
   console.log(req.body);
   const { categoryId } = req.params;
   const { name } = req.body;
