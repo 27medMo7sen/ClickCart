@@ -40,7 +40,7 @@ export class apiFeatures {
     return this;
   }
   filter() {
-    const excludeFields = ["page", "sort", "limit", "select", "search"];
+    const excludeFields = ["page", "sort", "size", "select", "search"];
     const queryInstance = { ...this.queryData };
     excludeFields.forEach((key) => delete queryInstance[key]);
     console.log(queryInstance);

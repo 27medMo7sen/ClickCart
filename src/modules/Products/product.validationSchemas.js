@@ -1,4 +1,5 @@
 import joi from "joi";
+import { generalFields } from "../../middlewares/validation.js";
 export const createProductSchema = {
   body: joi
     .object({
@@ -12,6 +13,11 @@ export const createProductSchema = {
       priceAfterDiscount: joi.number().default(1),
     })
     .required(),
+  query: joi.object({
+    categoryId: generalFields._id.required(),
+    subCategoryId: generalFields._id.required(),
+    brandId: generalFields._id.required(),
+  }),
 };
 export const updateProductSchema = {
   body: joi

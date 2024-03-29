@@ -1,9 +1,11 @@
 // req => userdata
 // schema => endPoint schema
-
 import joi from "joi";
+import { Types } from "mongoose";
 const reqMethods = ["body", "query", "params", "headers", "file", "files"];
-
+const ObjectIdValidation = (value, helpers) => {
+  return Types.ObjectId.isValid(value) ? value : helpers.error("Invalid Id");
+};
 export const generalFields = {
   email: joi
     .string()
@@ -16,6 +18,7 @@ export const generalFields = {
       "string.pattern.base": "Password regex fail",
     })
     .required(),
+  _id: joi.string().custom(ObjectIdValidation),
 };
 
 export const validationCoreFunction = (schema) => {
