@@ -1,47 +1,76 @@
 import { Schema, model } from "mongoose";
-export const couponSchema = new Schema(
+
+const couponSchema = new Schema(
   {
-    code: {
+    couponCode: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
     },
-    discount: {
+    couponAmount: {
       type: Number,
       required: true,
       default: 1,
+      min: 1,
+      max: 100,
     },
-    expireAt: {
-      type: Date,
+    isPercentage: {
+      type: Boolean,
       required: true,
+      default: false,
+    },
+    isFixedAmount: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
+      required: false, // TODO: convert into true after creating usermodel
     },
     updatedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    usedBy: [
+    deletedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    couponAssginedToUsers: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        maxUsage: {
+          type: Number,
+          required: true,
+          default: 1,
+        },
       },
     ],
-    status: {
+
+    fromDate: {
       type: String,
       required: true,
-      enum: ["active", "inactive"],
-      default: "active",
+    },
+    toDate: {
+      type: String,
+      required: true,
+    },
+    couponStatus: {
+      type: String,
+      required: true,
+      enum: ["Expired", "Valid"],
+      default: "Valid",
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+  }
 );
 
-export const couponModel = model("Coupon", couponSchema);
+export const couponModel = model("coupon", couponSchema);
