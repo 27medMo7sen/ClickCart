@@ -1,4 +1,4 @@
-import { pagination } from "./pagination.js";
+import { paginationFunciton } from "./pagination.js";
 export class apiFeatures {
   constructor(mongooseQuery, queryData) {
     this.mongooseQuery = mongooseQuery;
@@ -32,19 +32,17 @@ export class apiFeatures {
     return this;
   }
   pagination() {
-    if (this.queryData.page && this.queryData.size) {
-      const { limit, skip } = pagination(
-        this.queryData.page,
-        this.queryData.size
-      );
-      this.mongooseQuery = this.mongooseQuery.limit(limit).skip(skip);
-    }
+    const { limit, skip } = paginationFunciton(
+      this.queryData.page,
+      this.queryData.size
+    );
+    this.mongooseQuery = this.mongooseQuery.limit(limit).skip(skip);
     return this;
   }
   filter() {
     const excludeFields = ["page", "sort", "limit", "select", "search"];
+    const queryInstance = { ...this.queryData };
     excludeFields.forEach((key) => delete queryInstance[key]);
-    const queryInstance = { ...req.queryData };
     console.log(queryInstance);
     const queryString = JSON.parse(
       JSON.stringify(queryInstance).replace(
@@ -52,5 +50,8 @@ export class apiFeatures {
         (match) => `$${match}`
       )
     );
+    console.log(queryString);
+    this.mongooseQuery = this.mongooseQuery.find(queryString);
+    return this;
   }
 }
