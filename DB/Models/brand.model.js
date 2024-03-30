@@ -21,6 +21,11 @@ export const brandSchema = new Schema(
         required: true,
       },
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "category",

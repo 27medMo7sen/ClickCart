@@ -26,6 +26,7 @@ export const categorySchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     customId: {
       type: String,

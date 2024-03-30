@@ -28,7 +28,7 @@ const couponSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: false, // TODO: convert into true after creating usermodel
+      required: true, // TODO: convert into true after creating usermodel
     },
     updatedBy: {
       type: Schema.Types.ObjectId,
@@ -44,6 +44,7 @@ const couponSchema = new Schema(
         userId: {
           type: Schema.Types.ObjectId,
           ref: "User",
+          required: true,
         },
         maxUsage: {
           type: Number,
