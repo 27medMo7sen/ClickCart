@@ -1,0 +1,10 @@
+import { Router } from "express";
+import * as ac from "./auth.controller.js";
+import { asyncHandler } from "../../utils/errorhandling.js";
+const router = Router();
+router.get("/confirm/:token", asyncHandler(ac.confirmEmail));
+router.get("/login", asyncHandler(ac.logIn));
+router.post("/resetPassword/:token", asyncHandler(ac.resetPassword));
+router.post("/", asyncHandler(ac.signUp));
+router.post("/forgotPassword", asyncHandler(ac.forgotPassword));
+export default router;
