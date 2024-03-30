@@ -9,6 +9,7 @@ export const initiateApp = (app, express) => {
   app.use("/brand", allRouter.brandRouter);
   app.use("/product", allRouter.productRouter);
   app.use("/coupon", allRouter.couponRouter);
+  app.use("/auth", allRouter.authRouter);
   const port = process.env.PORT;
 
   app.all("*", (req, res, next) =>
