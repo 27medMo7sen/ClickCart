@@ -1,4 +1,4 @@
-import { hash, hashSync } from "bcrypt";
+import { hashSync } from "bcrypt";
 import { model, Schema } from "mongoose";
 const userSchema = new Schema(
   {

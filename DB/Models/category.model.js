@@ -28,6 +28,10 @@ export const categorySchema = new Schema(
       ref: "User",
       required: true,
     },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     customId: {
       type: String,
       required: true,
