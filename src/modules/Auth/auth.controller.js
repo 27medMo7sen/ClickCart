@@ -12,6 +12,7 @@ export const signUp = async (req, res, next) => {
   const emailExist = await userModel.findOne({ email });
   if (emailExist) next(new Error("Email already exist", { cause: 400 }));
   const phoneExist = await userModel.findOne({ phoneNumber });
+  console.log(phoneNumber);
   if (phoneExist) next(new Error("Phone number already exist", { cause: 400 }));
   const token = generateToken({
     payload: { email },
