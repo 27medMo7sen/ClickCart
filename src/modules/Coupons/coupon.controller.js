@@ -1,4 +1,4 @@
-import { couponModel } from '../../../DB/Models/coupon.model.js'
+import { couponModel } from "../../../DB/Models/coupon.model.js";
 
 export const addCoupon = async (req, res, next) => {
   const {
@@ -8,19 +8,20 @@ export const addCoupon = async (req, res, next) => {
     toDate,
     isPercentage,
     isFixedAmount,
-  } = req.body
+    couponAssginedToUsers,
+  } = req.body;
 
   // check coupon code if it's duplicate
-  const isCouponCodeDuplicate = await couponModel.findOne({ couponCode })
+  const isCouponCodeDuplicate = await couponModel.findOne({ couponCode });
   if (isCouponCodeDuplicate) {
-    return next(new Error('duplicate couponCode', { cause: 400 }))
+    return next(new Error("duplicate couponCode", { cause: 400 }));
   }
   if ((!isFixedAmount && !isPercentage) || (isFixedAmount && isPercentage)) {
     return next(
-      new Error('select if the coupon is percentage or fixedAmount', {
+      new Error("select if the coupon is percentage or fixedAmount", {
         cause: 400,
-      }),
-    )
+      })
+    );
   }
 
   const couponObject = {
@@ -30,11 +31,12 @@ export const addCoupon = async (req, res, next) => {
     toDate,
     isPercentage,
     isFixedAmount,
-  }
+    createdBy: req.user._id,
+  };
 
-  const couponDb = await couponModel.create(couponObject)
+  const couponDb = await couponModel.create(couponObject);
   if (!couponDb) {
-    return next(new Error('fail to add coupon', { cause: 400 }))
+    return next(new Error("fail to add coupon", { cause: 400 }));
   }
-  res.status(201).json({ message: 'Done', couponDb })
-}
+  res.status(201).json({ message: "Done", couponDb });
+};

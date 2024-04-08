@@ -8,7 +8,8 @@ import { productModel } from "../../../DB/Models/product.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 
 export const addCategory = async (req, res, next) => {
-  const { name, _id } = req.body;
+  const { _id } = req.user;
+  const { name } = req.body;
   const found = await categoryModel.findOne({ name });
   if (found) return next(new Error("Category already exists", { cause: 400 }));
   const slug = slugify(name, "_");
@@ -25,6 +26,7 @@ export const addCategory = async (req, res, next) => {
     slug,
     image: { secure_url, public_id },
     customId,
+    createdBy: _id,
   });
   if (!category) {
     await cloudinary.uploader.destroy(public_id);
@@ -33,9 +35,14 @@ export const addCategory = async (req, res, next) => {
   res.status(201).json({ message: "category created succesfully", category });
 };
 export const updateCategory = async (req, res, next) => {
+  const { _id } = req.user;
   const { categoryId } = req.params;
   const name = req.body.name.toLowerCase();
-  const found = await categoryModel.findById(categoryId);
+  const found = await categoryModel.findOne({
+    _id: categoryId,
+    createdBy: _id,
+  });
+  console.log(_id);
   if (!found) return next(new Error("Category not found", { cause: 404 }));
   if (name) {
     if (found.name === name)
@@ -58,6 +65,7 @@ export const updateCategory = async (req, res, next) => {
     );
     found.image = { secure_url, public_id };
   }
+  found.updatedBy = _id;
   await found.save();
   res.status(200).json({ message: "category updated succesfully", found });
 };
@@ -76,8 +84,9 @@ export const getAllCategories = async (req, res, next) => {
   res.status(200).json({ categories });
 };
 export const deleteCategory = async (req, res, next) => {
+  const { _id } = req.user;
   const { categoryId } = req.query;
-  const found = await categoryModel.findById(categoryId);
+  const found = await categoryModel.findOne({ categoryId, craetedBy: _id });
   if (!found) return next(new Error("Category not found", { cause: 404 }));
   await cloudinary.api.delete_resources_by_prefix(
     `${process.env.PROJECT_FOLDER}/category/${found.customId}`
