@@ -7,8 +7,10 @@ import { populate } from "dotenv";
 import { productModel } from "../../../DB/Models/product.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
+// MARK: add subcategory
 export const addSubcategory = async (req, res, next) => {
   console.log(req.body);
+  const { _id } = req.user;
   const { categoryId } = req.params;
   const { name } = req.body;
   const category = await categoryModel.findById(categoryId);
@@ -31,6 +33,7 @@ export const addSubcategory = async (req, res, next) => {
     name,
     slug,
     image: { secure_url, public_id },
+    createdBy: _id,
     categoryId,
     customId,
   });
@@ -42,6 +45,7 @@ export const addSubcategory = async (req, res, next) => {
     .status(201)
     .json({ message: "SubCategory created succesfully", subCategory });
 };
+// MARK: get all subcategories
 export const getAllSubCategories = async (req, res, next) => {
   const subCategories = await subCategoryModel
     .find()
@@ -58,7 +62,9 @@ export const getAllSubCategories = async (req, res, next) => {
     return next(new Error("SubCategories not found", { cause: 404 }));
   res.status(200).json({ subCategories });
 };
+// MARK: update subcategory
 export const updateSubCategory = async (req, res, next) => {
+  const { _id } = req.user;
   const { subCategoryId, categoryId } = req.query;
   const { name } = req.body;
   const subCategory = await subCategoryModel.findById(subCategoryId);
@@ -77,6 +83,7 @@ export const updateSubCategory = async (req, res, next) => {
       lower: true,
     });
     await subCategoryModel.findByIdAndUpdate(subCategoryId, {
+      updatedBy: _id,
       name,
       slug,
     });
@@ -99,6 +106,7 @@ export const updateSubCategory = async (req, res, next) => {
     .status(200)
     .json({ message: "SubCategory updated succesfully", updatedSubCategory });
 };
+// MARK: delete subcategory
 export const deleteSubCategory = async (req, res, next) => {
   const { subCategoryId, categoryId } = req.query;
   const subCategory = await subCategoryModel.findById(subCategoryId);

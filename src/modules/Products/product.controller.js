@@ -8,8 +8,9 @@ import { paginationFunciton } from "../../utils/pagination.js";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
 import { apiFeatures } from "../../utils/apiFeatures.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
-
+//MARK: add product
 export const addProduct = async (req, res) => {
+  const { _id } = req.user;
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const { categoryId, subCategoryId, brandId } = req.query;
   const category = await categoryModel.findById(categoryId);
@@ -42,6 +43,7 @@ export const addProduct = async (req, res) => {
     slug,
     price,
     priceAfterDiscount,
+    createdBy: _id,
     customId,
     desc,
     stock,
@@ -60,8 +62,10 @@ export const addProduct = async (req, res) => {
   }
   res.status(201).json(newProduct);
 };
+//MARK: update product
 export const updateProduct = async (req, res, next) => {
   const { productId } = req.query;
+  const { _id } = req.user;
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
@@ -89,6 +93,7 @@ export const updateProduct = async (req, res, next) => {
   if (stock) product.stock = stock;
   if (colors) product.colors = colors;
   if (sizes) product.sizes = sizes;
+  product.updatedBy = _id;
   const images = [];
   if (req.files && req.files.length > 0) {
     for (const file of req.files) {
@@ -110,6 +115,7 @@ export const updateProduct = async (req, res, next) => {
     return next(new Error("Product not updated", { cause: 500 }));
   res.status(200).json(updatedProduct);
 };
+//MARK: get all products
 export const getAllProducts = async (req, res, next) => {
   const { page, size } = req.query;
   const { limit, skip } = pagination(page, size);
@@ -117,6 +123,7 @@ export const getAllProducts = async (req, res, next) => {
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
+//MARK: get product by name
 export const getProductsByName = async (req, res, next) => {
   const { name, page, size } = req.query;
   const { limit, skip } = pagination(page, size);
@@ -132,6 +139,7 @@ export const getProductsByName = async (req, res, next) => {
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
+//MARK: delete product
 export const deleteProduct = async (req, res, next) => {
   const { productId } = req.query;
   const product = await productModel.findById(productId);
@@ -152,6 +160,7 @@ export const deleteProduct = async (req, res, next) => {
   );
   res.status(200).json(deletedProduct);
 };
+//MARK: product filter
 export const listProducts = async (req, res, next) => {
   //================= sort ===============
   // const { sort } = req.query;
