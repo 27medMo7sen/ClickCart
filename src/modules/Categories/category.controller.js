@@ -6,7 +6,7 @@ import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 import { productModel } from "../../../DB/Models/product.model.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
-
+//MARK: add category
 export const addCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { name } = req.body;
@@ -34,6 +34,7 @@ export const addCategory = async (req, res, next) => {
   }
   res.status(201).json({ message: "category created succesfully", category });
 };
+//MARK: update category
 export const updateCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { categoryId } = req.params;
@@ -69,6 +70,7 @@ export const updateCategory = async (req, res, next) => {
   await found.save();
   res.status(200).json({ message: "category updated succesfully", found });
 };
+//MARK: get all categories
 export const getAllCategories = async (req, res, next) => {
   const categories = await categoryModel.find().populate({
     path: "subCategories",
@@ -83,6 +85,7 @@ export const getAllCategories = async (req, res, next) => {
     return next(new Error("Categories not found", { cause: 404 }));
   res.status(200).json({ categories });
 };
+//MARK: delete category
 export const deleteCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { categoryId } = req.query;
