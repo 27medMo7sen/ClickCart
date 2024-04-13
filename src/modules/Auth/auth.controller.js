@@ -6,6 +6,7 @@ import pkg from "bcrypt";
 import { customAlphabet } from "nanoid";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 //=================== SignUp ===================
+//MARK: sign up
 export const signUp = async (req, res, next) => {
   const { userName, email, password, age, gender, phoneNumber, address } =
     req.body;
@@ -57,6 +58,7 @@ export const confirmEmail = async (req, res, next) => {
   if (!user) next(new Error("already confirmed", { cause: 404 }));
   else res.status(200).json({ message: "Email confirmed successfully" });
 };
+// MARK: login
 export const logIn = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await userModel.findOne({ email: email });
@@ -81,7 +83,7 @@ export const logIn = async (req, res, next) => {
 
   res.status(200).json({ message: "User logged in", updatedUser });
 };
-
+//MARK: forgot password
 export const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
@@ -106,6 +108,7 @@ export const forgotPassword = async (req, res, next) => {
   if (!isEmailSent) next(new Error("Email not sent", { cause: 500 }));
   res.status(200).json({ message: "Email sent successfully", token });
 };
+//MARK: reset password
 export const resetPassword = async (req, res, next) => {
   const { token } = req.params;
   const { newPassword } = req.body;
