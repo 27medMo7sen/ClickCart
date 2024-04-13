@@ -12,4 +12,6 @@ router.post(
   validationCoreFunction(addCouponSchema),
   asyncHandler(cc.addCoupon)
 );
+router.post("/updateCoupon", isAuth(), asyncHandler(cc.updateCoupon));
+
 export default router;
