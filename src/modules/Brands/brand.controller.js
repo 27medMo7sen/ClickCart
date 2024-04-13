@@ -6,7 +6,9 @@ import slugify from "slugify";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 import { productModel } from "../../../DB/Models/product.model.js";
+//MARK: add brand
 export const addBrand = async (req, res, next) => {
+  const { _id } = req.user;
   const { name } = req.body;
   const { categoryId, subCategoryId } = req.query;
   if (!name || !categoryId || !subCategoryId) {
@@ -36,6 +38,7 @@ export const addBrand = async (req, res, next) => {
     slug,
     logo: { secure_url, public_id },
     categoryId,
+    createdBy: _id,
     subCategoryId,
     customId,
   });
@@ -45,8 +48,9 @@ export const addBrand = async (req, res, next) => {
   }
   res.status(201).json({ message: "Brand created succesfully", brand });
 };
+//MARK: update brand
 export const updateBrand = async (req, res, next) => {
-  console.log(req.body);
+  const { _id } = req.user;
   const { categoryId, subCategoryId, brandId } = req.query;
   const { name } = req.body;
   const brand = await brandModel.findById(brandId);
@@ -74,6 +78,7 @@ export const updateBrand = async (req, res, next) => {
     );
     brand.logo = { secure_url, public_id };
   }
+  brand.updatedBy = _id;
   const updatedBrand = await brand.save();
   if (!updatedBrand) {
     await cloudinary.uploader.destroy(public_id);
@@ -89,6 +94,7 @@ export const updateBrand = async (req, res, next) => {
   }
   res.status(200).json({ message: "Brand updated succesfully", updatedBrand });
 };
+//MARK: delete brand
 export const deleteBrand = async (req, res, next) => {
   const { brandId } = req.query;
   const brand = await brandModel.findById(brandId);
@@ -105,6 +111,7 @@ export const deleteBrand = async (req, res, next) => {
   await brandModel.findByIdAndDelete(brandId);
   res.status(200).json({ message: "Brand deleted succesfully" });
 };
+//MARK: get brands
 export const getBrands = async (req, res, next) => {
   const brands = await brandModel.find().populate({
     path: "products",
