@@ -24,11 +24,9 @@ export const generalFields = {
 export const validationCoreFunction = (schema) => {
   return (req, res, next) => {
     // req
-    console.log(req.body);
     const validationErrorArr = [];
     for (const key of reqMethods) {
       if (schema[key]) {
-        console.log("hello");
         const validationResult = schema[key].validate(req[key], {
           abortEarly: false,
         }); // error
@@ -38,14 +36,12 @@ export const validationCoreFunction = (schema) => {
         }
       }
     }
-    console.log("hello");
 
     if (validationErrorArr.length) {
       return res
         .status(400)
         .json({ message: "Validation Error", Errors: validationErrorArr });
     }
-    console.log("hello");
     next();
   };
 };
