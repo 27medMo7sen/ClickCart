@@ -46,10 +46,6 @@ const productSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    deletedBy: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
