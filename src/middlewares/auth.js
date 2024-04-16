@@ -23,10 +23,13 @@ export const isAuth = () => {
 
         const findUser = await userModel.findById(
           decodedData._id,
-          "email userName role"
+          "email userName role token"
         );
         if (!findUser) {
           return next(new Error("Please SignUp", { cause: 400 }));
+        }
+        if (findUser.token != splitedToken) {
+          return next(new Error("Please login first", { cause: 400 }));
         }
         req.user = findUser;
         next();
