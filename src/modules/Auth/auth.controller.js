@@ -95,6 +95,7 @@ export const forgotPassword = async (req, res, next) => {
     signature: process.env.FORGET_PASSWORD_TOKEN,
     expiresIn: "1h",
   });
+
   const confirmationLink = `${req.protocol}://${req.headers.host}/auth/resetPassword/${token}`;
   const isEmailSent = sendEmailService({
     to: email,
@@ -105,7 +106,9 @@ export const forgotPassword = async (req, res, next) => {
       subject: "Forget Password",
     }),
   });
+
   if (!isEmailSent) next(new Error("Email not sent", { cause: 500 }));
+
   res.status(200).json({ message: "Email sent successfully", token });
 };
 //MARK: reset password
@@ -131,4 +134,15 @@ export const resetPassword = async (req, res, next) => {
   const updatedUser = await user.save();
   if (!updatedUser) next(new Error("Password not updated", { cause: 500 }));
   res.status(200).json({ message: "Password updated successfully" });
+};
+// MARK: log out
+export const logOut = async (req, res, next) => {
+  const { _id } = req.user;
+  const user = await userModel.findOneAndUpdate(
+    { _id },
+    { status: "offline", token: "" },
+    { new: true }
+  );
+  if (!user) next(new Error("User not found", { cause: 404 }));
+  res.status(200).json({ message: "User logged out successfully" });
 };
