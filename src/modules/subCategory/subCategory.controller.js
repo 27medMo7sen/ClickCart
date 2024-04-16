@@ -71,6 +71,12 @@ export const updateSubCategory = async (req, res, next) => {
   const category = await categoryModel.findById(categoryId);
   if (!subCategory)
     return next(new Error("SubCategory not found", { cause: 404 }));
+  if (subCategory.createdBy != _id)
+    return next(
+      new Error("You are not authorized to update this subcategory", {
+        cause: 401,
+      })
+    );
   if (!category) return next(new Error("Category not found", { cause: 404 }));
 
   if (name) {

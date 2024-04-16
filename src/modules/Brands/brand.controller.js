@@ -56,7 +56,10 @@ export const updateBrand = async (req, res, next) => {
   const brand = await brandModel.findById(brandId);
   const category = await categoryModel.findById(categoryId);
   const subCategory = await subCategoryModel.findById(subCategoryId);
-
+  if (brand.createdBy != _id)
+    return next(
+      new Error("You are not authorized to update this brand", { cause: 401 })
+    );
   let preImage;
   if (!brand) return next(new Error("Brand not found", { cause: 404 }));
   if (name) {
@@ -96,9 +99,14 @@ export const updateBrand = async (req, res, next) => {
 };
 //MARK: delete brand
 export const deleteBrand = async (req, res, next) => {
+  const { _id } = req.user;
   const { brandId } = req.query;
   const brand = await brandModel.findById(brandId);
   if (!brand) return next(new Error("Brand not found", { cause: 404 }));
+  if (brand.createdBy != _id)
+    return next(
+      new Error("You are not authorized to delete this brand", { cause: 401 })
+    );
   const category = await categoryModel.findById(brand.categoryId);
   const subCategory = await subCategoryModel.findById(brand.subCategoryId);
   await cloudinary.api.delete_resources_by_prefix(

@@ -69,6 +69,10 @@ export const updateProduct = async (req, res, next) => {
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
+  if (product.createdBy != _id)
+    return next(
+      new Error("You are not authorized to update this product", { cause: 401 })
+    );
   const { categoryId, subCategoryId, brandId } = product;
   const category = await categoryModel.findById(categoryId);
   const subCategory = await subCategoryModel.findById(subCategoryId);
@@ -141,9 +145,14 @@ export const getProductsByName = async (req, res, next) => {
 };
 //MARK: delete product
 export const deleteProduct = async (req, res, next) => {
+  const { _id } = req.user;
   const { productId } = req.query;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
+  if (product.createdBy != _id)
+    return next(
+      new Error("You are not authorized to delete this product", { cause: 401 })
+    );
   const customId = product.customId;
   const { categoryId, subCategoryId, brandId } = product;
   const category = await categoryModel.findById(categoryId);
