@@ -88,3 +88,18 @@ export const updateCoupon = async (req, res, next) => {
     .status(200)
     .json({ message: "Coupon updated successfully", updatedCoupon });
 };
+//MARK: delete coupon
+export const deleteCoupon = async (req, res, next) => {
+  const { _id } = req.user;
+  const { couponId } = req.query;
+  const coupon = await couponModel.findById(couponId);
+  if (!coupon) return next(new Error("Coupon not found", { cause: 404 }));
+  if (String(coupon.createdBy) != String(_id)) {
+    console.log(typeof coupon.createdBy, typeof _id);
+    return next(
+      new Error("You are not authorized to delete this coupon", { cause: 401 })
+    );
+  }
+  await couponModel.findByIdAndDelete(couponId);
+  res.status(200).json({ message: "Coupon deleted successfully" });
+};

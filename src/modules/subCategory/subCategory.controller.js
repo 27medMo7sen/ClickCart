@@ -11,7 +11,7 @@ const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 export const addSubcategory = async (req, res, next) => {
   console.log(req.body);
   const { _id } = req.user;
-  const { categoryId } = req.params;
+  const { categoryId } = req.query;
   const { name } = req.body;
   const category = await categoryModel.findById(categoryId);
   if (!category) return next(new Error("Category not found", { cause: 404 }));

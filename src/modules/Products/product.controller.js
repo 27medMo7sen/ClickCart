@@ -26,6 +26,7 @@ export const addProduct = async (req, res) => {
   const customId = nanoid();
   const images = [];
   const puplicIds = [];
+  console.log("hello");
   for (const file of req.files) {
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       file.path,
