@@ -14,13 +14,10 @@ export const addToCart = async (req, res, next) => {
     const cartObject = {
       userId,
       products: [{ productId, quantity }],
-      subTotal: product.price * quantity,
+      subTotal: product.priceAfterDiscount * quantity,
     };
     const cartDb = await cartModel.create(cartObject);
     if (!cartDb) return next(new Error("Fail to add to cart", { cause: 400 }));
-    await productModel.findByIdAndUpdate(productId, {
-      stock: product.stock - quantity,
-    });
     return res.status(201).json({ message: "Added to cart", cartDb });
   }
 
@@ -35,20 +32,14 @@ export const addToCart = async (req, res, next) => {
   if (!flag) {
     products.push({ productId, quantity });
   }
-  let subTotal = 0;
-  for (const product of products) {
-    const productDb = await productModel.findById(product.productId);
-    subTotal += productDb.price * product.quantity;
-  }
-  cart.subTotal = subTotal;
+
+  cart.subTotal += product.priceAfterDiscount * quantity;
   cart.products = products;
   const cartDb = await cart.save();
   if (!cartDb) return next(new Error("Fail to add to cart", { cause: 400 }));
-  await productModel.findByIdAndUpdate(productId, {
-    stock: product.stock - quantity,
-  });
   res.status(201).json({ message: "Added to cart", cartDb });
 };
+//MARK: delete from cart
 export const deleteFromTheCart = async (req, res, next) => {
   const { productId } = req.body;
   const userId = req.user._id;

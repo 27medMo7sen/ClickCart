@@ -42,7 +42,7 @@ export const validationCoreFunction = (schema) => {
       //   .status(400)
       //   .json({ message: "Validation Error", Errors: validationErrorArr });
       req.validationErrorArr = validationErrorArr;
-      // return next(new Error("Validation Error", { cause: 400 }));
+      return next(new Error("", { cause: 400 }));
     }
     next();
   };

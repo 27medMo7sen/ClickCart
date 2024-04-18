@@ -5,6 +5,7 @@ import productRouter from "./Products/product.routes.js";
 import couponRouter from "./Coupons/coupon.routes.js";
 import authRouter from "./Auth/auth.routes.js";
 import cartRouter from "./Cart/cart.routes.js";
+import orderRouter from "./Order/order.routes.js";
 export {
   categoryRouter,
   subcategorRouter,
@@ -13,4 +14,5 @@ export {
   couponRouter,
   authRouter,
   cartRouter,
+  orderRouter,
 };
