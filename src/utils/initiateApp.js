@@ -12,6 +12,7 @@ export const initiateApp = (app, express) => {
   app.use("/coupon", allRouter.couponRouter);
   app.use("/auth", allRouter.authRouter);
   app.use("/cart", allRouter.cartRouter);
+  app.use("/order", allRouter.orderRouter);
   const port = process.env.PORT;
 
   app.all("*", (req, res, next) =>
@@ -19,7 +20,7 @@ export const initiateApp = (app, express) => {
   );
 
   app.use(globalResponse);
-  chagngeCouponStatus();
+  // chagngeCouponStatus();
   app.get("/", (req, res) => res.send("Hello World!"));
   app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 };

@@ -46,6 +46,10 @@ const couponSchema = new Schema(
           required: true,
           default: 1,
         },
+        used: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
 
