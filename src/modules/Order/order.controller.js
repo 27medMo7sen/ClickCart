@@ -4,7 +4,7 @@ import { productModel } from "../../../DB/Models/product.model.js";
 import { orderModel } from "../../../DB/Models/order.model.js";
 import { cartModel } from "../../../DB/Models/cart.model.js";
 import { customAlphabet } from "nanoid";
-import createInvoice from "../../utils/pdfKit.js";
+import createInvoice from "../../utils/pdfkit.js";
 import { sendEmailService } from "../../services/sendEmailService.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 export const addOrder = async (req, res, next) => {
