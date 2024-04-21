@@ -5,18 +5,15 @@ export const validateCoupon = async (couponCode, userId) => {
   if (!coupon) return { valid: false, message: "Coupon not foundddd" };
   if (
     coupon.couponStatus == "Expired" ||
-    moment(coupon.toDate).isBefore(moment().tz("Africa/Cairo"))
+    moment(new date(coupon.toDate)).isBefore(moment().tz("Africa/Cairo"))
   )
     return { valid: false, message: "Coupon expired" };
+  if (
+    coupon.couponStatus == "Valid" &&
+    moment().isBefore(moment(new date(coupon.fromDate)).tz("Africa/Cairo"))
+  )
+    return { valid: false, message: "Coupon not valid yet" };
   let flag = false;
-  for (const user of coupon.couponAssginedToUsers) {
-    if (String(user.userId) == String(userId)) {
-      flag = true;
-      if (user.used >= user.maxUsage) {
-        return { valid: false, message: "Coupon usage limit exceeded" };
-      }
-    }
-  }
   if (!flag) return { valid: false, message: "Coupon not assigned to user" };
   let u;
   let couponAssgined = [];
@@ -26,9 +23,14 @@ export const validateCoupon = async (couponCode, userId) => {
     } else {
       u = user;
       u.used += 1;
+      flag = true;
+      if (user.used >= user.maxUsage) {
+        return { valid: false, message: "Coupon usage limit exceeded" };
+      }
       couponAssgined.push(u);
     }
   }
+  if (!flag) return { valid: false, message: "Coupon not assigned to user" };
   coupon.couponAssginedToUsers = couponAssgined;
   const isPercentage = coupon.isPercentage;
   const amount = coupon.couponAmount;

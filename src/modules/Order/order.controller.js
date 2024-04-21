@@ -6,6 +6,7 @@ import { cartModel } from "../../../DB/Models/cart.model.js";
 import { customAlphabet } from "nanoid";
 import createInvoice from "../../utils/pdfkit.js";
 import { sendEmailService } from "../../services/sendEmailService.js";
+import { generateQrCode } from "../../utils/qrCodeFunction.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 export const addOrder = async (req, res, next) => {
   const userId = req.user._id;
@@ -110,7 +111,10 @@ export const addOrder = async (req, res, next) => {
       },
     ],
   });
-  res.status(201).json({ message: "Order added successfully", order });
+  const QRCode = generateQrCode({
+    data: { orderId: order._id, products: order.products },
+  });
+  res.status(201).json({ message: "Order added successfully", order, QRCode });
 };
 //MARK: cart to order
 export const cartToOrder = async (req, res, next) => {
