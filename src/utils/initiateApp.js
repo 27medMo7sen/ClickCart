@@ -2,9 +2,11 @@ import { connectionDB } from "../../DB/connection.js";
 import * as allRouter from "../modules/index.routes.js";
 import { chagngeCouponStatus } from "./Crons.js";
 import { globalResponse } from "./errorhandling.js";
+import cors from "cors";
 export const initiateApp = (app, express) => {
   app.use(express.json());
   connectionDB();
+  app.use(cors());
   app.use("/category", allRouter.categoryRouter);
   app.use("/subCategory", allRouter.subcategorRouter);
   app.use("/brand", allRouter.brandRouter);
