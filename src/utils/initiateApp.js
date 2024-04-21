@@ -7,6 +7,7 @@ export const initiateApp = (app, express) => {
   app.use(express.json());
   connectionDB();
   app.use(cors());
+  app.get("/", (req, res) => res.send("Hello World!"));
   app.use("/category", allRouter.categoryRouter);
   app.use("/subCategory", allRouter.subcategorRouter);
   app.use("/brand", allRouter.brandRouter);
@@ -23,6 +24,5 @@ export const initiateApp = (app, express) => {
 
   app.use(globalResponse);
   // chagngeCouponStatus();
-  app.get("/", (req, res) => res.send("Hello World!"));
   app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 };
