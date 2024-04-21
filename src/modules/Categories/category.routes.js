@@ -18,6 +18,7 @@ router.post(
 );
 router.post(
   "/:categoryId",
+
   isAuth(ca.updateCategory),
   multerCloudFunction(allowedExtensions.Image).single("image"),
   validationCoreFunction(validationSchema.updateCategorySchema),
