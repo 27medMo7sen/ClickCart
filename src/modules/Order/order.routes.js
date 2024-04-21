@@ -11,4 +11,6 @@ router.put(
   isAuth(oa.cartToOrder),
   asyncHandler(oc.cartToOrder)
 );
+router.get("/success", asyncHandler(oc.successPayment));
+router.get("/cancel", asyncHandler(oc.cancelPayment));
 export default router;

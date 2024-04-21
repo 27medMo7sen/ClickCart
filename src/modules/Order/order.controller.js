@@ -7,6 +7,10 @@ import { customAlphabet } from "nanoid";
 import createInvoice from "../../utils/pdfkit.js";
 import { sendEmailService } from "../../services/sendEmailService.js";
 import { generateQrCode } from "../../utils/qrCodeFunction.js";
+import { paymentFunction } from "../../utils/payment.js";
+import { generateToken, verifyToken } from "../../utils/tokenFunctions.js";
+import { couponModel } from "../../../DB/Models/coupon.model.js";
+import Stripe from "stripe";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 export const addOrder = async (req, res, next) => {
   const userId = req.user._id;
@@ -25,9 +29,8 @@ export const addOrder = async (req, res, next) => {
   }
   const ifProductValid = await productModel.findById({
     _id: productId,
-    stock: { $gte: quantity },
   });
-  if (!ifProductValid)
+  if (!ifProductValid || ifProductValid.stock < quantity)
     return next(new Error("Product not found", { cause: 404 }));
   let products = [];
   const productObject = {
@@ -57,6 +60,56 @@ export const addOrder = async (req, res, next) => {
     paidAmount,
   });
   if (!order) return next(new Error("Fail to add order", { cause: 400 }));
+  let orderSession;
+  const token = generateToken({
+    payload: { orderId: order._id },
+    signature: process.env.ORDER_TOKEN,
+    expiresIn: "1d",
+  });
+  let coupon;
+  if (order.paymentMethod === "card") {
+    if (ret.valid) {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      if (ret.isPercentage) {
+        coupon = await stripe.coupons.create({
+          percent_off: ret.amount,
+        });
+      } else {
+        coupon = await stripe.coupons.create({
+          amount_off: ret.amount * 100,
+          currency: "EGP",
+        });
+      }
+      req.couponId = coupon.id;
+    }
+    console.log(
+      `${req.protocol}://${req.headers.host}/order/cancel?token=${token}`
+    );
+    orderSession = await paymentFunction({
+      payment_method_types: ["card"],
+      mood: "payment",
+      customer_email: req.user.email,
+      metadata: { orderId: order._id.toString() },
+      success_url: `${req.protocol}://${req.headers.host}/order/success?token=${token}`, //${process.env.CLIENT_URL}
+      cancel_url: `${req.protocol}://${req.headers.host}/order/cancel?token=${token}`,
+      line_items: order.products.map((product) => {
+        return {
+          price_data: {
+            currency: "EGP",
+            product_data: {
+              name: product.title,
+            },
+            unit_amount: product.price * 100,
+          },
+          quantity: product.quantity,
+        };
+      }),
+      discounts: req.couponId ? [{ coupon: req.couponId }] : null,
+    });
+  }
+  if (ret.valid) {
+    console.log(coupon.id);
+  }
   await productModel.findByIdAndUpdate(productId, {
     stock: ifProductValid.stock - quantity,
   });
@@ -114,7 +167,11 @@ export const addOrder = async (req, res, next) => {
   const QRCode = await generateQrCode({
     data: { orderId: order._id, products: order.products },
   });
-  res.status(201).json({ message: "Order added successfully", order, QRCode });
+  res.status(201).json({
+    message: "Order added successfully",
+    order,
+    checkOutUrl: orderSession.url,
+  });
 };
 //MARK: cart to order
 export const cartToOrder = async (req, res, next) => {
@@ -176,4 +233,53 @@ export const cartToOrder = async (req, res, next) => {
   cart.subTotal = 0;
   await cart.save();
   res.status(201).json({ message: "Order added successfully", order });
+};
+//MARK: success payment
+export const successPayment = async (req, res, next) => {
+  const { token } = req.query;
+  const decodedData = verifyToken({
+    token,
+    signature: process.env.ORDER_TOKEN,
+  });
+  const order = await orderModel.findOne({
+    _id: decodedData.orderId,
+    status: "pending",
+  });
+  if (!order) return next(new Error("Order not found", { cause: 404 }));
+  order.status = "confirmed";
+  await order.save();
+  res.status(200).json({ message: "Order confirmed successfully", order });
+};
+//MARK: cancel payment
+export const cancelPayment = async (req, res, next) => {
+  const { token } = req.query;
+  console.log(token);
+  const decodedData = verifyToken({
+    token,
+    signature: process.env.ORDER_TOKEN,
+  });
+  const order = await orderModel.findOne({
+    _id: decodedData.orderId,
+    status: "pending",
+  });
+  if (!order) return next(new Error("Order not found", { cause: 404 }));
+  order.status = "cancelled";
+  await order.save();
+  const products = order.products;
+  for (const product of products) {
+    await productModel.findByIdAndUpdate(product.productId, {
+      $inc: { stock: parseInt(product.quantity) },
+    });
+  }
+  if (order.couponId) {
+    const coupon = await couponModel.findOne({ couponCode: order.couponId });
+    for (const user of coupon.couponAssginedToUsers) {
+      if (String(user.userId) == String(order.userId)) {
+        user.used -= 1;
+        break;
+      }
+    }
+    await coupon.save();
+  }
+  res.status(200).json({ message: "Order cancelled successfully", order });
 };

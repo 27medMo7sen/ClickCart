@@ -5,16 +5,15 @@ export const validateCoupon = async (couponCode, userId) => {
   if (!coupon) return { valid: false, message: "Coupon not foundddd" };
   if (
     coupon.couponStatus == "Expired" ||
-    moment(new date(coupon.toDate)).isBefore(moment().tz("Africa/Cairo"))
+    moment(new Date(coupon.toDate)).isBefore(moment().tz("Africa/Cairo"))
   )
     return { valid: false, message: "Coupon expired" };
   if (
     coupon.couponStatus == "Valid" &&
-    moment().isBefore(moment(new date(coupon.fromDate)).tz("Africa/Cairo"))
+    moment().isBefore(moment(new Date(coupon.fromDate)).tz("Africa/Cairo"))
   )
     return { valid: false, message: "Coupon not valid yet" };
   let flag = false;
-  if (!flag) return { valid: false, message: "Coupon not assigned to user" };
   let u;
   let couponAssgined = [];
   for (const user of coupon.couponAssginedToUsers) {
