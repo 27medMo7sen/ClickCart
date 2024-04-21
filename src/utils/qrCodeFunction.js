@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 
-export const generateQrCode = ({ data = "" } = {}) => {
+export const generateQrCode = async ({ data = "" } = {}) => {
   const qrcode = QRCode.toDataURL(JSON.stringify(data), {
     errorCorrectionLevel: "H",
     type: "image/jpeg",

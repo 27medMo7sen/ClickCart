@@ -111,7 +111,7 @@ export const addOrder = async (req, res, next) => {
       },
     ],
   });
-  const QRCode = generateQrCode({
+  const QRCode = await generateQrCode({
     data: { orderId: order._id, products: order.products },
   });
   res.status(201).json({ message: "Order added successfully", order, QRCode });
