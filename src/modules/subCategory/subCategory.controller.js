@@ -71,9 +71,9 @@ export const updateSubCategory = async (req, res, next) => {
   const category = await categoryModel.findById(categoryId);
   if (!subCategory)
     return next(new Error("SubCategory not found", { cause: 404 }));
-  if (subCategory.createdBy != _id)
+  if (subCategory.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
-      new Error("You are not authorized to update this subcategory", {
+      new Error("You are not authorized to delete this subcategory", {
         cause: 401,
       })
     );
@@ -114,10 +114,17 @@ export const updateSubCategory = async (req, res, next) => {
 };
 // MARK: delete subcategory
 export const deleteSubCategory = async (req, res, next) => {
+  const { _id } = req.user;
   const { subCategoryId, categoryId } = req.query;
   const subCategory = await subCategoryModel.findById(subCategoryId);
   if (!subCategory)
     return next(new Error("SubCategory not found", { cause: 404 }));
+  if (subCategory.createdBy != _id && req.user.role != "SuperAdmin")
+    return next(
+      new Error("You are not authorized to delete this subcategory", {
+        cause: 401,
+      })
+    );
   const category = await categoryModel.findById(categoryId);
   if (!category) return next(new Error("Category not found", { cause: 404 }));
   await productModel.deleteMany({ subCategoryId });

@@ -70,6 +70,10 @@ export const updateCoupon = async (req, res, next) => {
     req.body;
   const coupon = await couponModel.findById(couponId);
   if (!coupon) return next(new Error("Coupon not found", { cause: 404 }));
+  if (coupon.createdBy != _id && req.user.role != "SuperAdmin")
+    return next(
+      new Error("You are not authorized to update this coupon", { cause: 401 })
+    );
   if (isFixedAmount && isPercentage) {
     return next(
       new Error("select if the coupon is percentage or fixedAmount", {
@@ -94,12 +98,10 @@ export const deleteCoupon = async (req, res, next) => {
   const { couponId } = req.query;
   const coupon = await couponModel.findById(couponId);
   if (!coupon) return next(new Error("Coupon not found", { cause: 404 }));
-  if (String(coupon.createdBy) != String(_id)) {
-    console.log(typeof coupon.createdBy, typeof _id);
+  if (coupon.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
-      new Error("You are not authorized to delete this coupon", { cause: 401 })
+      new Error("You are not authorized to update this coupon", { cause: 401 })
     );
-  }
   await couponModel.findByIdAndDelete(couponId);
   res.status(200).json({ message: "Coupon deleted successfully" });
 };

@@ -70,7 +70,7 @@ export const updateProduct = async (req, res, next) => {
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
-  if (product.createdBy != _id)
+  if (product.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
       new Error("You are not authorized to update this product", { cause: 401 })
     );
@@ -150,9 +150,9 @@ export const deleteProduct = async (req, res, next) => {
   const { productId } = req.query;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
-  if (product.createdBy != _id)
+  if (product.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
-      new Error("You are not authorized to delete this product", { cause: 401 })
+      new Error("You are not authorized to update this product", { cause: 401 })
     );
   const customId = product.customId;
   const { categoryId, subCategoryId, brandId } = product;

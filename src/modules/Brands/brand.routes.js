@@ -6,19 +6,24 @@ import { allowedExtensions } from "../../utils/allowedExtensions.js";
 import { validationCoreFunction } from "../../middlewares/validation.js";
 import { get } from "mongoose";
 import { isAuth } from "../../middlewares/auth.js";
+import * as ba from "./brands.endpoints.roles.js";
 const router = Router();
 router.post(
   "/",
-  isAuth(),
+  isAuth(ba.addBrand),
   multerCloudFunction(allowedExtensions.Image).single("logo"),
   asyncHandler(bc.addBrand)
 );
 router.get("/", asyncHandler(bc.getBrands));
 router.put(
   "/updateBrand",
-  isAuth(),
+  isAuth(ba.updateBrand),
   multerCloudFunction(allowedExtensions.Image).single("logo"),
   asyncHandler(bc.updateBrand)
 );
-router.delete("/deleteBrand", isAuth(), asyncHandler(bc.deleteBrand));
+router.delete(
+  "/deleteBrand",
+  isAuth(ba.deleteBrand),
+  asyncHandler(bc.deleteBrand)
+);
 export default router;

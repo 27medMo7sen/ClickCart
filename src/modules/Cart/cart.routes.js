@@ -4,20 +4,19 @@ import * as cc from "./cart.controller.js";
 import { asyncHandler } from "../../utils/errorhandling.js";
 import { validationCoreFunction } from "../../middlewares/validation.js";
 import { addToCartSchema } from "./cart.validationSchemas.js";
+import * as ca from "./cart.endpoints.roles.js";
 import { isAuth } from "../../middlewares/auth.js";
 
 router.post(
   "/",
-  isAuth(),
+  isAuth(ca.addToCart),
   validationCoreFunction(addToCartSchema),
   asyncHandler(cc.addToCart)
 );
-router.put("/deleteFromCart", isAuth(), asyncHandler(cc.deleteFromTheCart));
-// router.post("/updateCoupon", isAuth(), asyncHandler(cc.updateCoupon));
-// router.delete(
-//   "/deleteCoupon",
-//   isAuth(),
-//   validationCoreFunction(deleteCouponSchema),
-//   asyncHandler(cc.deleteCoupon)
-// );
+router.put(
+  "/deleteFromCart",
+  isAuth(ca.deleteFromCart),
+  validationCoreFunction(addToCartSchema),
+  asyncHandler(cc.deleteFromTheCart)
+);
 export default router;

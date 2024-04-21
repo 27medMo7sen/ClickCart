@@ -1,7 +1,7 @@
 import { userModel } from "../../DB/Models/user.model.js";
 import { generateToken, verifyToken } from "../utils/tokenFunctions.js";
 
-export const isAuth = () => {
+export const isAuth = (roles) => {
   return async (req, res, next) => {
     try {
       const { authorization } = req.headers;
@@ -32,6 +32,13 @@ export const isAuth = () => {
           return next(new Error("Please login first", { cause: 400 }));
         }
         req.user = findUser;
+        if (roles && !roles.includes(findUser.role)) {
+          return next(
+            new Error("You are not authorized to access this route", {
+              cause: 403,
+            })
+          );
+        }
         next();
       } catch (error) {
         // token  => search in db

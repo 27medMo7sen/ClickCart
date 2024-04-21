@@ -7,18 +7,23 @@ import {
   addCouponSchema,
   deleteCouponSchema,
 } from "./coupon.validationSchemas.js";
+import * as ca from "./coupon.endpoints.roles.js";
 import { isAuth } from "../../middlewares/auth.js";
 
 router.post(
   "/",
-  isAuth(),
+  isAuth(ca.addCoupon),
   validationCoreFunction(addCouponSchema),
   asyncHandler(cc.addCoupon)
 );
-router.post("/updateCoupon", isAuth(), asyncHandler(cc.updateCoupon));
+router.post(
+  "/updateCoupon",
+  isAuth(ca.updateCoupon),
+  asyncHandler(cc.updateCoupon)
+);
 router.delete(
   "/deleteCoupon",
-  isAuth(),
+  isAuth(ca.deleteCoupon),
   validationCoreFunction(deleteCouponSchema),
   asyncHandler(cc.deleteCoupon)
 );

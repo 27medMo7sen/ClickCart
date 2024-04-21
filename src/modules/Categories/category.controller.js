@@ -1,10 +1,10 @@
 import slugify from "slugify";
 import { categoryModel } from "../../../DB/Models/category.model.js";
 import cloudinary from "../../utils/coludinaryConfigrations.js";
-import { customAlphabet } from "nanoid";
 import { subCategoryModel } from "../../../DB/Models/subCategory.model.js";
 import { brandModel } from "../../../DB/Models/brand.model.js";
 import { productModel } from "../../../DB/Models/product.model.js";
+import { customAlphabet } from "nanoid";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 //MARK: add category
 export const addCategory = async (req, res, next) => {
@@ -41,10 +41,15 @@ export const updateCategory = async (req, res, next) => {
   const name = req.body.name.toLowerCase();
   const found = await categoryModel.findOne({
     _id: categoryId,
-    createdBy: _id,
   });
   console.log(_id);
   if (!found) return next(new Error("Category not found", { cause: 404 }));
+  if (found.createdBy != _id && req.user.role != "SuperAdmin")
+    return next(
+      new Error("You are not authorized to update this category", {
+        cause: 401,
+      })
+    );
   if (name) {
     if (found.name === name)
       return next(new Error("Please pick different name", { cause: 400 }));
@@ -89,8 +94,15 @@ export const getAllCategories = async (req, res, next) => {
 export const deleteCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { categoryId } = req.query;
-  const found = await categoryModel.findOne({ categoryId, craetedBy: _id });
+  const found = await categoryModel.findOne({ categoryId });
   if (!found) return next(new Error("Category not found", { cause: 404 }));
+  if (found.createdBy != _id && req.user.role != "SuperAdmin")
+    return next(
+      new Error("You are not authorized to update this category", {
+        cause: 401,
+      })
+    );
+
   await cloudinary.api.delete_resources_by_prefix(
     `${process.env.PROJECT_FOLDER}/category/${found.customId}`
   );

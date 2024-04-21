@@ -56,7 +56,7 @@ export const updateBrand = async (req, res, next) => {
   const brand = await brandModel.findById(brandId);
   const category = await categoryModel.findById(categoryId);
   const subCategory = await subCategoryModel.findById(subCategoryId);
-  if (brand.createdBy != _id)
+  if (brand.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
       new Error("You are not authorized to update this brand", { cause: 401 })
     );
@@ -103,9 +103,9 @@ export const deleteBrand = async (req, res, next) => {
   const { brandId } = req.query;
   const brand = await brandModel.findById(brandId);
   if (!brand) return next(new Error("Brand not found", { cause: 404 }));
-  if (brand.createdBy != _id)
+  if (brand.createdBy != _id && req.user.role != "SuperAdmin")
     return next(
-      new Error("You are not authorized to delete this brand", { cause: 401 })
+      new Error("You are not authorized to update this brand", { cause: 401 })
     );
   const category = await categoryModel.findById(brand.categoryId);
   const subCategory = await subCategoryModel.findById(brand.subCategoryId);
