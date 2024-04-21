@@ -123,7 +123,7 @@ export const updateProduct = async (req, res, next) => {
 //MARK: get all products
 export const getAllProducts = async (req, res, next) => {
   const { page, size } = req.query;
-  const { limit, skip } = pagination(page, size);
+  const { limit, skip } = paginationFunciton(page, size);
   const products = await productModel.find().limit(limit).skip(skip);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
@@ -131,7 +131,7 @@ export const getAllProducts = async (req, res, next) => {
 //MARK: get product by name
 export const getProductsByName = async (req, res, next) => {
   const { name, page, size } = req.query;
-  const { limit, skip } = pagination(page, size);
+  const { limit, skip } = paginationFunciton(page, size);
   const products = await productModel
     .find({
       $or: [
