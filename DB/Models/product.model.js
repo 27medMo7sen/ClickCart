@@ -71,8 +71,24 @@ const productSchema = new Schema(
       type: String,
       required: true,
     },
+    ratingSum: {
+      type: Number,
+      default: 0,
+    },
+    noOfRatings: {
+      type: Number,
+      default: 0,
+    },
+    productRating: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
-
+productSchema.virtual("Reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "productId",
+});
 export const productModel = model("Product", productSchema);
