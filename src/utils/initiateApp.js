@@ -16,6 +16,7 @@ export const initiateApp = (app, express) => {
   app.use("/auth", allRouter.authRouter);
   app.use("/cart", allRouter.cartRouter);
   app.use("/order", allRouter.orderRouter);
+  app.use("/review", allRouter.reviewRouter);
   const port = process.env.PORT;
 
   app.all("*", (req, res, next) =>

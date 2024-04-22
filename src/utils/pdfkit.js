@@ -31,11 +31,8 @@ function generateHeader(doc) {
 
 function generateCustomerInformation(doc, invoice) {
   doc.fillColor("#444444").fontSize(20).text("Invoice", 50, 160);
-
   generateHr(doc, 185);
-
   const customerInformationTop = 200;
-
   doc
     .fontSize(10)
     .text("Order Code:", 50, customerInformationTop)
@@ -58,7 +55,6 @@ function generateCustomerInformation(doc, invoice) {
       customerInformationTop + 30
     )
     .moveDown();
-
   generateHr(doc, 252);
 }
 
@@ -84,7 +80,7 @@ function generateInvoiceTable(doc, invoice) {
     generateTableRow(
       doc,
       position,
-      item.title, // product title
+      item.title,
       formatCurrency(item.price), // product price
       item.quantity, // product quantity
       formatCurrency(item.finalPrice) // product final price
