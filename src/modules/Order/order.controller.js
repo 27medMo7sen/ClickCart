@@ -47,7 +47,15 @@ export const addOrder = async (req, res, next) => {
   if (couponCode && ret.valid) {
     if (ret.isPercentage) {
       paidAmount = subTotal - (subTotal * ret.amount) / 100;
-    } else paidAmount = subTotal - ret.amount > 0 ? subTotal - ret.amount : 0;
+    } else {
+      if (subTotal - ret.amount < 0)
+        return next(
+          new Error("Coupon amount is greater than the total amount", {
+            cause: 400,
+          })
+        );
+      paidAmount = subTotal - ret.amount;
+    }
   } else paidAmount = subTotal;
   const order = await orderModel.create({
     userId,
@@ -68,7 +76,7 @@ export const addOrder = async (req, res, next) => {
   });
   let coupon;
   if (order.paymentMethod === "card") {
-    if (ret.valid) {
+    if (req.couponCode && ret.valid) {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
       if (ret.isPercentage) {
         coupon = await stripe.coupons.create({
@@ -104,10 +112,10 @@ export const addOrder = async (req, res, next) => {
           quantity: product.quantity,
         };
       }),
-      discounts: req.couponId ? [{ coupon: req.couponId }] : null,
+      discounts: req.couponId ? [{ coupon: req.couponId }] : [],
     });
   }
-  if (ret.valid) {
+  if (req.couponCode && ret.valid) {
     console.log(coupon.id);
   }
   await productModel.findByIdAndUpdate(productId, {
@@ -282,4 +290,15 @@ export const cancelPayment = async (req, res, next) => {
     await coupon.save();
   }
   res.status(200).json({ message: "Order cancelled successfully", order });
+};
+export const deliverOrder = async (req, res, next) => {
+  const { orderId } = req.query;
+  const order = await orderModel.findOne({
+    _id: orderId,
+    status: { $nin: ["delivered", "cancelled", "peinding", "rejected"] },
+  });
+  if (!order) return next(new Error("Order not found", { cause: 404 }));
+  order.status = "delivered";
+  await order.save();
+  res.status(200).json({ message: "Order delivered successfully", order });
 };

@@ -9,7 +9,7 @@ import cloudinary from "../../utils/coludinaryConfigrations.js";
 import { apiFeatures } from "../../utils/apiFeatures.js";
 const nanoid = customAlphabet("123456_=!ascbhdtel", 5);
 //MARK: add product
-export const addProduct = async (req, res) => {
+export const addProduct = async (req, res, next) => {
   const { _id } = req.user;
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const { categoryId, subCategoryId, brandId } = req.query;
@@ -124,7 +124,15 @@ export const updateProduct = async (req, res, next) => {
 export const getAllProducts = async (req, res, next) => {
   const { page, size } = req.query;
   const { limit, skip } = paginationFunciton(page, size);
-  const products = await productModel.find().limit(limit).skip(skip);
+  const products = await productModel
+    .find()
+    .limit(limit)
+    .skip(skip)
+    .populate([
+      {
+        path: "Reviews",
+      },
+    ]);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
@@ -140,7 +148,12 @@ export const getProductsByName = async (req, res, next) => {
       ],
     })
     .limit(limit)
-    .skip(skip);
+    .skip(skip)
+    .populate([
+      {
+        path: "Review",
+      },
+    ]);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };
@@ -172,49 +185,17 @@ export const deleteProduct = async (req, res, next) => {
 };
 //MARK: product filter
 export const listProducts = async (req, res, next) => {
-  //================= sort ===============
-  // const { sort } = req.query;
-  // const products = await productModel.find().sort(sort.replaceAll(",", " "));
-  // if (!products) return next(new Error("Products not found", { cause: 404 }));
-  // res.status(200).json(products);
-  //================= select ===============
-  // const { select } = req.query;
-  // const products = await productModel
-  //   .find()
-  //   .select(select.replaceAll(",", " "));
-  // if (!products) return next(new Error("Products not found", { cause: 404 }));
-  // res.status(200).json(products);
-  //================= search ==============
-  // const { search } = req.query;
-  // const products = await productModel.find({
-  //   $or: [
-  //     { name: { $regex: search, $options: "i" } },
-  //     { desc: { $regex: search, $options: "i" } },
-  //   ],
-  // });
-  // if (!products) return next(new Error("Products not found", { cause: 404 }));
-  // res.status(200).json(products);
-  //======================= filter ========================
-  // const excludeFields = ["page", "sort", "limit", "select", "search"];
-  // const queryInstance = { ...req.query };
-  // excludeFields.forEach((key) => delete queryInstance[key]);
-  // console.log(queryInstance);
-  // const queryString = JSON.parse(
-  //   JSON.stringify(queryInstance).replace(
-  //     /lte|gte|gt|lt|regex|in|nin|eq|neq/g,
-  //     (match) => `$${match}`
-  //   )
-  // );
-  // console.log(queryString);
-  // const products = await productModel.find(queryString);
-  // if (!products) return next(new Error("Products not found", { cause: 404 }));
-  // res.status(200).json(products);
   const apiFeaturesInstance = new apiFeatures(productModel.find(), req.query)
     .pagination()
     .sort()
     .select()
     .search()
-    .filter();
+    .filter()
+    .populate([
+      {
+        path: "Review",
+      },
+    ]);
   const products = await apiFeaturesInstance.mongooseQuery;
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
