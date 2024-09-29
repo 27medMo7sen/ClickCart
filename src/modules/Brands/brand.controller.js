@@ -56,7 +56,7 @@ export const updateBrand = async (req, res, next) => {
   const brand = await brandModel.findById(brandId);
   const category = await categoryModel.findById(categoryId);
   const subCategory = await subCategoryModel.findById(subCategoryId);
-  if (brand.createdBy != _id && req.user.role != "SuperAdmin")
+  if (JSON.stringify(brand.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this brand", { cause: 401 })
     );

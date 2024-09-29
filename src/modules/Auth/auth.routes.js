@@ -3,11 +3,17 @@ import * as ac from "./auth.controller.js";
 import { isAuth } from "../../middlewares/auth.js";
 import { asyncHandler } from "../../utils/errorhandling.js";
 import { roles } from "../../utils/roles.js";
+import { validationCoreFunction } from "../../middlewares/validation.js";
+import { loginSchema, signupSchema } from "./auth.validationSchemas.js";
 const router = Router();
 router.get("/confirm/:token", asyncHandler(ac.confirmEmail));
-router.get("/login", asyncHandler(ac.logIn));
+router.get(
+  "/login",
+  validationCoreFunction(loginSchema),
+  asyncHandler(ac.logIn)
+);
 router.post("/resetPassword/:token", asyncHandler(ac.resetPassword));
-router.post("/", asyncHandler(ac.signUp));
+router.post("/", validationCoreFunction(signupSchema), asyncHandler(ac.signUp));
 router.patch("/forgotPassword", asyncHandler(ac.forgotPassword));
 router.patch(
   "/logout",

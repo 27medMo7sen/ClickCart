@@ -9,7 +9,7 @@ import * as sa from "./subCategory.endpoints.roles.js";
 import { isAuth } from "../../middlewares/auth.js";
 const router = Router();
 router.post(
-  "/:categoryId",
+  "/",
   isAuth(sa.addSubcategory),
   multerCloudFunction(allowedExtensions.Image).single("image"),
   validationCoreFunction(validationSchema.createSubCategorySchema),

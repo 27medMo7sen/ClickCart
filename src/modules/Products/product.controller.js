@@ -65,12 +65,13 @@ export const addProduct = async (req, res, next) => {
 };
 //MARK: update product
 export const updateProduct = async (req, res, next) => {
+  console.log("hello");
   const { productId } = req.query;
   const { _id } = req.user;
   const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
-  if (product.createdBy != _id && req.user.role != "SuperAdmin")
+  if (JSON.stringify(product.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this product", { cause: 401 })
     );
@@ -163,7 +164,7 @@ export const deleteProduct = async (req, res, next) => {
   const { productId } = req.query;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
-  if (product.createdBy != _id && req.user.role != "SuperAdmin")
+  if (JSON.stringify(product.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this product", { cause: 401 })
     );
@@ -190,13 +191,12 @@ export const listProducts = async (req, res, next) => {
     .sort()
     .select()
     .search()
-    .filter()
-    .populate([
-      {
-        path: "Review",
-      },
-    ]);
-  const products = await apiFeaturesInstance.mongooseQuery;
+    .filter();
+  const products = await apiFeaturesInstance.mongooseQuery.populate([
+    {
+      path: "Reviews",
+    },
+  ]);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
 };

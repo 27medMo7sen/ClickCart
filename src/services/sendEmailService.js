@@ -9,7 +9,7 @@ export async function sendEmailService({
   // configurations
   const transporter = nodemailer.createTransport({
     host: "localhost", // stmp.gmail.com
-    port: 587, // 587 , 465
+    port: 587, // 587 , 465 https
     secure: false, // false , true
     service: "gmail", // optional
     auth: {

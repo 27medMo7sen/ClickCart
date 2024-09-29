@@ -44,7 +44,8 @@ export const updateCategory = async (req, res, next) => {
   });
   console.log(_id);
   if (!found) return next(new Error("Category not found", { cause: 404 }));
-  if (found.createdBy != _id && req.user.role != "SuperAdmin")
+  console.log(found.createdBy, _id);
+  if (JSON.stringify(found.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this category", {
         cause: 401,

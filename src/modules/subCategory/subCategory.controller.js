@@ -71,7 +71,7 @@ export const updateSubCategory = async (req, res, next) => {
   const category = await categoryModel.findById(categoryId);
   if (!subCategory)
     return next(new Error("SubCategory not found", { cause: 404 }));
-  if (subCategory.createdBy != _id && req.user.role != "SuperAdmin")
+  if (JSON.stringify(subCategory.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to delete this subcategory", {
         cause: 401,

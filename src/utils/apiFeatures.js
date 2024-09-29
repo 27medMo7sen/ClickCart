@@ -42,6 +42,8 @@ export class apiFeatures {
   filter() {
     const excludeFields = ["page", "sort", "size", "select", "search"];
     const queryInstance = { ...this.queryData };
+    console.log(queryInstance);
+
     excludeFields.forEach((key) => delete queryInstance[key]);
     console.log(queryInstance);
     const queryString = JSON.parse(

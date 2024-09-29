@@ -11,26 +11,8 @@ export const signUp = async (req, res, next) => {
   const { userName, email, password, age, gender, phoneNumber, address } =
     req.body;
   const emailExist = await userModel.findOne({ email });
-  if (emailExist) next(new Error("Email already exist", { cause: 400 }));
-  const phoneExist = await userModel.findOne({ phoneNumber });
-  console.log(phoneNumber);
-  if (phoneExist) next(new Error("Phone number already exist", { cause: 400 }));
-  const token = generateToken({
-    payload: { email },
-    signature: process.env.CONFIRMATION_EMAIL_TOKEN,
-    expiresIn: "1h",
-  });
-  const confirmationLink = `${req.protocol}://${req.headers.host}/auth/confirm/${token}`;
-  const isEmailsent = sendEmailService({
-    to: email,
-    subject: "Confirm Email",
-    message: emailTemplate({
-      link: confirmationLink,
-      linkData: "click here to confirm your email",
-      subject: "Email Confirmation",
-    }),
-  });
-  if (!isEmailsent) next(new Error("Email not sent", { cause: 500 }));
+  if (emailExist) next(new Error("Email already exist", { cause: 436 }));
+
   const user = new userModel({
     userName,
     email,
@@ -42,8 +24,25 @@ export const signUp = async (req, res, next) => {
   });
   const newUser = await user.save();
   if (!newUser) next(new Error("User not created", { cause: 500 }));
+  const token = generateToken({
+    payload: { email },
+    signature: process.env.CONFIRMATION_EMAIL_TOKEN,
+    expiresIn: "1h",
+  });
+  const confirmationLink = `${req.protocol}://localhost:3000/confirm/${token}`;
+  const isEmailsent = sendEmailService({
+    to: email,
+    subject: "Confirm Email",
+    message: emailTemplate({
+      link: confirmationLink,
+      linkData: "click here to confirm your email",
+      subject: "Email Confirmation",
+    }),
+  });
+  if (!isEmailsent) next(new Error("Email not sent", { cause: 500 }));
   res.status(201).json({ message: "User created successfully", newUser });
 };
+//MARK: confirm E-mail
 export const confirmEmail = async (req, res, next) => {
   const { token } = req.params;
   const decode = verifyToken({
@@ -55,8 +54,9 @@ export const confirmEmail = async (req, res, next) => {
     { isConfirmed: true },
     { new: true }
   );
-  if (!user) next(new Error("already confirmed", { cause: 404 }));
-  else res.status(200).json({ message: "Email confirmed successfully" });
+
+  if (!user) next(new Error("already confirmed", { cause: 400 }));
+  else res.status(200).json({ message: "Email confirmed successfully", user });
 };
 // MARK: login
 export const logIn = async (req, res, next) => {

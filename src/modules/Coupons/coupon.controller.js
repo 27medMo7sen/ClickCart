@@ -32,18 +32,21 @@ export const addCoupon = async (req, res, next) => {
   }
   const exsitUsers = await userModel.find({ _id: { $in: userIds } });
   let notExsitUsers = [];
-  let final = [];
   for (const user of couponAssginedToUsers) {
     let flag = false;
     for (const i of exsitUsers) {
       if (user.userId == i._id) {
-        final.push(user);
         flag = true;
       }
     }
     if (flag == false) {
       notExsitUsers.push(user.userId);
     }
+  }
+  if (notExsitUsers.length > 0) {
+    return next(
+      new Error(`users not found : ${notExsitUsers} `, { cause: 400 })
+    );
   }
 
   const couponObject = {
@@ -53,7 +56,7 @@ export const addCoupon = async (req, res, next) => {
     toDate,
     isPercentage,
     isFixedAmount,
-    couponAssginedToUsers: final,
+    couponAssginedToUsers: couponAssginedToUsers,
     createdBy: _id,
   };
   const couponDb = await couponModel.create(couponObject);

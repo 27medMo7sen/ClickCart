@@ -6,7 +6,7 @@ import cors from "cors";
 export const initiateApp = (app, express) => {
   app.use(express.json());
   connectionDB();
-  app.use(cors());
+  app.use(cors({ origin: "http://localhost:3000" }));
   app.get("/", (req, res) => res.send("Hello World!"));
   app.use("/category", allRouter.categoryRouter);
   app.use("/subCategory", allRouter.subcategorRouter);

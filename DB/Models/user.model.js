@@ -16,6 +16,7 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
+      min: 6,
     },
     isConfirmed: {
       type: Boolean,
@@ -30,7 +31,6 @@ const userSchema = new Schema(
     phoneNumber: {
       type: String,
       required: true,
-      unique: true,
     },
     isDeleted: {
       type: Boolean,
