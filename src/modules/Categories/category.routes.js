@@ -24,6 +24,11 @@ router.post(
   validationCoreFunction(validationSchema.updateCategorySchema),
   asyncHandler(cc.updateCategory)
 );
+router.get(
+  "/getAdminCategories",
+  isAuth(ca.getAdminCategory),
+  asyncHandler(cc.getAdminCategories)
+);
 router.delete(
   "/deleteCategory",
   isAuth(ca.deleteCategory),

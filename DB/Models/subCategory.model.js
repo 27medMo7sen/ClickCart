@@ -13,16 +13,7 @@ export const subCategorySchema = new Schema(
       required: true,
       lowercase: true,
     },
-    image: {
-      secure_url: {
-        type: String,
-        required: true,
-      },
-      public_id: {
-        type: String,
-        required: true,
-      },
-    },
+
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -32,10 +23,7 @@ export const subCategorySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    customId: {
-      type: String,
-      required: true,
-    },
+
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",

@@ -1,4 +1,4 @@
-export const emailTemplate = ({ link, linkData, subject }) => {
+export const emailTemplate = ({ link, linkData, subject, buttonText }) => {
   return `<!--
 * This email was built using Tabular.
 * For more information, visit https://tabular.email
@@ -470,10 +470,7 @@ export const emailTemplate = ({ link, linkData, subject }) => {
                                         mso-text-raise: 2px;
                                       "
                                     >
-                                      Please click the button below to confirm
-                                      your email address and finish setting up
-                                      your account. This link is valid for 2
-                                      hours.
+                                   ${linkData}
                                     </p>
                                   </td>
                                 </tr>
@@ -557,7 +554,7 @@ export const emailTemplate = ({ link, linkData, subject }) => {
                                           border-radius: 40px;
                                         "
                                       >
-                                        Confirm
+                                        ${buttonText}
                                       </span>
                                     </a>
                                   </td>

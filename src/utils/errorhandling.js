@@ -4,8 +4,6 @@ import cloudinary from "./coludinaryConfigrations.js";
 export const asyncHandler = (API) => {
   return (req, res, next) => {
     API(req, res, next).catch(async (err) => {
-      console.log(err);
-      console.log(req.imagesPath);
       if (req.imagesPath) {
         await cloudinary.api.delete_resources_by_prefix(req.imagesPath);
         await cloudinary.api.delete_folder(req.imagesPath);

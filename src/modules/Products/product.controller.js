@@ -26,7 +26,6 @@ export const addProduct = async (req, res, next) => {
   const customId = nanoid();
   const images = [];
   const puplicIds = [];
-  console.log("hello");
   for (const file of req.files) {
     const { secure_url, public_id } = await cloudinary.uploader.upload(
       file.path,
@@ -45,7 +44,6 @@ export const addProduct = async (req, res, next) => {
     price,
     priceAfterDiscount,
     createdBy: _id,
-    customId,
     desc,
     stock,
     images,
@@ -65,10 +63,18 @@ export const addProduct = async (req, res, next) => {
 };
 //MARK: update product
 export const updateProduct = async (req, res, next) => {
-  console.log("hello");
   const { productId } = req.query;
   const { _id } = req.user;
-  const { name, price, desc, stock, colors, sizes, appliedDiscount } = req.body;
+  const {
+    name,
+    price,
+    desc,
+    stock,
+    colors,
+    sizes,
+    appliedDiscount,
+    oldImages,
+  } = req.body;
   const product = await productModel.findById(productId);
   if (!product) return next(new Error("Product not found", { cause: 404 }));
   if (JSON.stringify(product.createdBy) != JSON.stringify(_id))
@@ -111,9 +117,12 @@ export const updateProduct = async (req, res, next) => {
       );
       images.push({ secure_url, public_id });
     }
-    for (const image of product.images) {
-      await cloudinary.uploader.destroy(image.public_id);
-    }
+  }
+  for (const image of product.images) {
+    if (!oldImages.includes(image.secure_url)) {
+      console.log(true);
+      await cloudinary.api.delete_resources(image.public_id);
+    } else images.push(image);
   }
   product.images = images;
   const updatedProduct = await product.save();
@@ -199,4 +208,17 @@ export const listProducts = async (req, res, next) => {
   ]);
   if (!products) return next(new Error("Products not found", { cause: 404 }));
   res.status(200).json(products);
+};
+//MARK: search product by admin
+export const searchAdminProducts = async (req, res, next) => {
+  const { _id } = req.user;
+  const { categoryId, subCategoryId, brandId, name } = req.query;
+  const products = await productModel.find({
+    createdBy: _id,
+    categoryId,
+    subCategoryId,
+    brandId,
+    name: { $regex: name, $options: "i" },
+  });
+  res.status(200).json({ products });
 };

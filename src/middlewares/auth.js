@@ -14,7 +14,6 @@ export const isAuth = (roles) => {
       }
 
       const splitedToken = authorization.split(" ")[1];
-
       try {
         const decodedData = verifyToken({
           token: splitedToken,
@@ -31,6 +30,7 @@ export const isAuth = (roles) => {
         if (findUser.token != splitedToken) {
           return next(new Error("Please login first", { cause: 400 }));
         }
+       
         req.user = findUser;
         if (roles && !roles.includes(findUser.role)) {
           return next(
@@ -42,8 +42,11 @@ export const isAuth = (roles) => {
         next();
       } catch (error) {
         // token  => search in db
+        let refreshed = false;
+
         if (error == "TokenExpiredError: jwt expired") {
           // refresh token
+
           const user = await userModel.findOne({ token: splitedToken });
           if (!user) {
             return next(new Error("Wrong token", { cause: 400 }));
@@ -66,12 +69,21 @@ export const isAuth = (roles) => {
             );
           }
 
-          await userModel.findByIdAndUpdate(user._id, { token: userToken });
-          return res
-            .status(200)
-            .json({ message: "Token refreshed", userToken });
+          const modifiedUser = await userModel.findByIdAndUpdate(user._id, {
+            token: userToken,
+          });
+          await res.cookie("userToken", userToken, {
+            maxAge: 1000 * 60 * 60 * 2,
+            path: "/",
+            sameSite: "Lax",
+            secure: true,
+          });
+          refreshed = true;
+          req.user = modifiedUser;
+          console.log("refresh tokennnn");
         }
-        return next(new Error("invalid token", { cause: 500 }));
+        if (!refreshed) return next(new Error("invalid token", { cause: 428 }));
+        next();
       }
     } catch (error) {
       console.log(error);

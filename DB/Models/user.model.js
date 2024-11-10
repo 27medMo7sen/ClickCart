@@ -30,6 +30,7 @@ const userSchema = new Schema(
     },
     phoneNumber: {
       type: String,
+      unique: false,
       required: true,
     },
     isDeleted: {

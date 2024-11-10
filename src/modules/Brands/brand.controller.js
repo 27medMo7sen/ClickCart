@@ -9,8 +9,8 @@ import { productModel } from "../../../DB/Models/product.model.js";
 //MARK: add brand
 export const addBrand = async (req, res, next) => {
   const { _id } = req.user;
-  const { name } = req.body;
   const { categoryId, subCategoryId } = req.query;
+  const { name } = req.body;
   if (!name || !categoryId || !subCategoryId) {
     return res.status(400).json({
       message: "All fields are required",
@@ -18,7 +18,9 @@ export const addBrand = async (req, res, next) => {
   }
   const category = await categoryModel.findById(categoryId);
   const subCategory = await subCategoryModel.findById(subCategoryId);
+  const found = await brandModel.findOne({ name, categoryId, subCategoryId });
   const customId = nanoid();
+  if (found) return next(new Error("Brand already exists", { cause: 436 }));
   if (!subCategory)
     return next(new Error("SubCategory not found", { cause: 400 }));
   if (!category) return next(new Error("Category not found", { cause: 400 }));
@@ -26,7 +28,7 @@ export const addBrand = async (req, res, next) => {
     lower: true,
     replacement: "_",
   });
-  if (!req.file) return next(new Error("logo is required", { cause: 400 }));
+  if (!req.file) return next(new Error("logo is required", { cause: 436 }));
   const { secure_url, public_id } = await cloudinary.uploader.upload(
     req.file.path,
     {
@@ -70,6 +72,8 @@ export const updateBrand = async (req, res, next) => {
     brand.name = name;
     brand.slug = slug;
   }
+  const found = await brandModel.findOne({ name, _id: { $ne: brandId }, categoryId, subCategoryId });
+  if (found) return next(new Error("Brand already exists", { cause: 436 }));
   if (req.file) {
     preImage = { ...brand.logo };
     await cloudinary.uploader.destroy(brand.logo.public_id);
@@ -103,7 +107,7 @@ export const deleteBrand = async (req, res, next) => {
   const { brandId } = req.query;
   const brand = await brandModel.findById(brandId);
   if (!brand) return next(new Error("Brand not found", { cause: 404 }));
-  if (brand.createdBy != _id && req.user.role != "SuperAdmin")
+  if (JSON.stringify(brand.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this brand", { cause: 401 })
     );
@@ -125,5 +129,40 @@ export const getBrands = async (req, res, next) => {
     path: "products",
   });
   if (!brands) return next(new Error("Brands not found", { cause: 404 }));
+  res.status(200).json({ brands });
+};
+//MARK: get brands by Adimn
+export const getAdminBrands = async (req, res, next) => {
+  const { _id } = req.user;
+  const { categoryId, subCategoryId } = req.query;
+  const brands = await brandModel.find({
+    createdBy: _id,
+    categoryId,
+    subCategoryId,
+  });
+  if (!brands) return next(new Error("Brands not found", { cause: 404 }));
+  res.status(200).json({ brands });
+};
+//MARK: search admin brands
+export const searchAdminBrands = async (req, res, next) => {
+  const { _id } = req.user;
+  const { categoryId, subCategoryId, name } = req.query;
+  const brands = await brandModel.find({
+    createdBy: _id,
+    categoryId,
+    subCategoryId,
+    name: { $regex: name, $options: "i" },
+  });
+  res.status(200).json({ brands });
+};
+//MARK: search in brands
+export const searchBrands = async (req, res, next) => {
+  const { _id } = req.user;
+  const { categoryId, subCategoryId, name } = req.query;
+  const brands = await brandModel.find({
+    categoryId,
+    subCategoryId,
+    name: { $regex: name, $options: "i" },
+  });
   res.status(200).json({ brands });
 };

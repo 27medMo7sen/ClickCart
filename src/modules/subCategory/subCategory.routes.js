@@ -19,9 +19,13 @@ router.get("/", asyncHandler(sc.getAllSubCategories));
 router.put(
   "/",
   isAuth(sa.updateSubCategory),
-  multerCloudFunction(allowedExtensions.Image).single("image"),
   validationCoreFunction(validationSchema.updateSubCategorySchema),
   asyncHandler(sc.updateSubCategory)
+);
+router.get(
+  "/getAdminSubcategory",
+  isAuth(sa.getAdminSubCategory),
+  asyncHandler(sc.getAdminSubCategories)
 );
 router.delete(
   "/deleteSubCategory",

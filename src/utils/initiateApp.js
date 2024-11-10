@@ -4,9 +4,9 @@ import { chagngeCouponStatus } from "./Crons.js";
 import { globalResponse } from "./errorhandling.js";
 import cors from "cors";
 export const initiateApp = (app, express) => {
+  app.use(cors({ origin: "http://localhost:3000", credentials: true }));
   app.use(express.json());
   connectionDB();
-  app.use(cors({ origin: "http://localhost:3000" }));
   app.get("/", (req, res) => res.send("Hello World!"));
   app.use("/category", allRouter.categoryRouter);
   app.use("/subCategory", allRouter.subcategorRouter);

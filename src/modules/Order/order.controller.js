@@ -160,18 +160,20 @@ export const addOrder = async (req, res, next) => {
     subTotal: order.subTotal,
     paidAmount: order.paidAmount,
   };
-  await createInvoice(orderInvoice, `${orderCode}.pdf`);
-  await sendEmailService({
-    to: req.user.email,
-    subject: "Order Invoice",
-    message: `<h1>please check your invoice pdf below</h1>`,
-    attachments: [
-      {
-        filename: `${orderCode}.pdf`,
-        path: `./Files/${orderCode}.pdf`,
-      },
-    ],
-  });
+  // await createInvoice(orderInvoice, `${orderCode}.pdf`);
+  // await sendEmailService({
+  //   to: req.user.email,
+  //   subject: "Order Invoice",
+  //   message: `<h1>please check your invoice pdf below</h1>`,
+  //   attachments: [
+  //     {
+  //       filename: `${orderCode}.pdf`,
+  //       path: `./Files/${orderCode}.pdf`,
+  //     },
+  //   ],
+  // });
+  console.log("here");
+
   const QRCode = await generateQrCode({
     data: { orderId: order._id, products: order.products },
   });

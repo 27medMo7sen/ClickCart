@@ -11,9 +11,9 @@ export const addCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { name } = req.body;
   const found = await categoryModel.findOne({ name });
-  if (found) return next(new Error("Category already exists", { cause: 400 }));
+  if (found) return next(new Error("Category already exists", { cause: 436 }));
   const slug = slugify(name, "_");
-  if (!req.file) return next(new Error("Image is required", { cause: 400 }));
+  if (!req.file) return next(new Error("Image is required", { cause: 436 }));
   const customId = nanoid();
   const { secure_url, public_id } = await cloudinary.uploader.upload(
     req.file.path,
@@ -42,22 +42,21 @@ export const updateCategory = async (req, res, next) => {
   const found = await categoryModel.findOne({
     _id: categoryId,
   });
-  console.log(_id);
   if (!found) return next(new Error("Category not found", { cause: 404 }));
-  console.log(found.createdBy, _id);
   if (JSON.stringify(found.createdBy) != JSON.stringify(_id))
     return next(
       new Error("You are not authorized to update this category", {
-        cause: 401,
+        cause: 436,
       })
     );
   if (name) {
-    if (found.name === name)
-      return next(new Error("Please pick different name", { cause: 400 }));
-    const sname = await categoryModel.findOne({ name });
+    const sname = await categoryModel.findOne({
+      name,
+      _id: { $ne: categoryId },
+    });
     const slug = slugify(name, "_");
     if (sname)
-      return next(new Error("Category already exists", { cause: 400 }));
+      return next(new Error("Category already exists", { cause: 436 }));
     found.name = name;
     found.slug = slug;
   }
@@ -75,6 +74,13 @@ export const updateCategory = async (req, res, next) => {
   found.updatedBy = _id;
   await found.save();
   res.status(200).json({ message: "category updated succesfully", found });
+};
+export const getAdminCategories = async (req, res, next) => {
+  const { _id } = req.user;
+  const categories = await categoryModel.find({ createdBy: _id });
+  if (!categories)
+    return next(new Error("Categories not found", { cause: 404 }));
+  res.status(200).json({ categories });
 };
 //MARK: get all categories
 export const getAllCategories = async (req, res, next) => {
@@ -95,9 +101,13 @@ export const getAllCategories = async (req, res, next) => {
 export const deleteCategory = async (req, res, next) => {
   const { _id } = req.user;
   const { categoryId } = req.query;
-  const found = await categoryModel.findOne({ categoryId });
+  const found = await categoryModel.findById(categoryId);
+
   if (!found) return next(new Error("Category not found", { cause: 404 }));
-  if (found.createdBy != _id && req.user.role != "SuperAdmin")
+  if (
+    JSON.stringify(found.createdBy) != JSON.stringify(_id) &&
+    req.user.role != "SuperAdmin"
+  )
     return next(
       new Error("You are not authorized to update this category", {
         cause: 401,
@@ -114,7 +124,6 @@ export const deleteCategory = async (req, res, next) => {
     categoryId,
   });
   const deletedBrands = await brandModel.deleteMany({ categoryId });
-  console.log(deletedSubCategories, deletedBrands);
   const deletedProducts = await productModel.deleteMany({ categoryId });
   await categoryModel.findByIdAndDelete(categoryId);
   if (!deletedProducts)

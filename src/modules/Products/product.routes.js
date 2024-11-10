@@ -12,14 +12,19 @@ const router = Router();
 router.post(
   "/",
   isAuth(pa.addProduct),
-  multerCloudFunction(allowedExtensions.Image).array("images", 3),
+  multerCloudFunction(allowedExtensions.Image).array("images", 5),
   validationCoreFunction(validationSchema.createProductSchema),
   asyncHandler(pc.addProduct)
+);
+router.post(
+  "/searchAdminProducts",
+  isAuth(pa.addProduct),
+  asyncHandler(pc.searchAdminProducts)
 );
 router.put(
   "/",
   isAuth(pa.updateProduct),
-  multerCloudFunction(allowedExtensions.Image).array("images", 3),
+  multerCloudFunction(allowedExtensions.Image).array("images", 5),
   validationCoreFunction(validationSchema.updateProductSchema),
   asyncHandler(pc.updateProduct)
 );
